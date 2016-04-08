@@ -32,7 +32,7 @@ class Variable : public Node {
 	public:
 		char* name;
 		Node* next;
-		Variable(char* name, Node* next) : name(name), next(next) {  }
+		Variable(char* name, Variable* next) : name(name), next(next) {  }
 		void printTree();
 		int computeTree();
 };

@@ -15,10 +15,11 @@ var [a-zA-Z]+
 
 [ \t]               ; //ignores spaces
 {digs}              {yylval.integer = std::atoi(yytext); return T_INT;}
-{var}		    {yylval.var = yytext; return T_VAR;}
+"def"		    {return T_DEF;}
+{var}		    {yylval.variable = yytext; return T_VAR;}
 "+"                 {return T_PLUS;}
 "*"		    {return T_MULT;}
-"="		    {return T_ATTR;}
+","		    {return COMMA;}
 \n                  {return T_NL;}
 .                   {yyerror("Unknown token! %c\n", *yytext);} /*complains about every unknown character*/
 

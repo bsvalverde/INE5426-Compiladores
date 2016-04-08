@@ -46,6 +46,7 @@ int BinOp::computeTree(){
     switch(op){
          case plus: value = lvalue + rvalue; break;
 		 case mult: value = lvalue * rvalue; break;
+		 case attr: symbolTable.insert(std::pair<char*, int>())
     }
     return value;
 }

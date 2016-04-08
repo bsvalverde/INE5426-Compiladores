@@ -1,7 +1,8 @@
 %{
 #include "ast.h"
+
+
 AST::Block *programRoot; /* the root node of our program AST:: */
-std::map<string, int> table;
 extern int yylex();
 extern void yyerror(const char* s, ...);
 %}
@@ -11,7 +12,7 @@ extern void yyerror(const char* s, ...);
  */
 %union {
     int integer;
-    string var;
+	char* variable;
     AST::Node *node;
     AST::Block *block;
 }
@@ -19,14 +20,14 @@ extern void yyerror(const char* s, ...);
 /* token defines our terminal symbols (tokens).
  */
 %token <integer> T_INT
-%token <var> T_VAR
-%token T_PLUS T_MULT T_ATTR T_VAR T_NL
+%token <variable> T_VAR
+%token T_PLUS T_MULT T_DEF T_NL COMMA
 
 /* type defines the type of our nonterminal symbols.
  * Types should match the names used in the union.
  * Example: %type<node> expr
  */
-%type <node> expr line
+%type <node> expr line declvar
 %type <block> lines program
 
 /* Operator precedence for mathematical operators
@@ -34,7 +35,7 @@ extern void yyerror(const char* s, ...);
  */
 %left T_PLUS
 %left T_MULT
-%nonassoc error T_ATTR
+%nonassoc error
 
 /* Starting rule 
  */
@@ -46,13 +47,13 @@ program : lines { programRoot = $1; }
         ;
         
 
-lines   : line { $$ = new AST::Block(); $$->lines.push_back($1); }
-        | lines line { if($2 != NULL) $1->lines.push_back($2); }
+lines   : line { $$ = new AST::Block(); $$->lines.push_back($1); printf("lala %d\n", (int)$$->lines.size());}
+        | lines line { if($2 != NULL) $1->lines.push_back($2); printf("lala %d\n", (int)$$->lines.size());}
         ;
 
 line    : T_NL { $$ = NULL; } /*nothing here to be used */
         | expr T_NL /*$$ = $1 when nothing is said*/
-		| varattr T_NL
+		| T_DEF declvar T_NL {$$ = $2;}
         ;
 
 expr    : T_INT { $$ = new AST::Integer($1); printf("Inteiro %d identificado.\n", $1); }
@@ -70,11 +71,16 @@ expr    : T_INT { $$ = new AST::Integer($1); printf("Inteiro %d identificado.\n"
         | expr error { yyerrok; $$ = $1; } /*just a point for error recovery*/
 		;
 
-varattr : var T_ATTR expr {
-			table.insert(std::pair<string, int>($1, $3));
-			printf("Valor atribuido a variavel %s\n", $1);
+declvar : T_VAR {
+			$$ = new AST::Variable($1, NULL);					
+			printf("Definição da variável %s.\n", $1);
 		}
 
+		| declvar COMMA T_VAR {
+			$$ = new AST::Variable($3, $1);
+			printf("Definição da variável %s.\n", $3);
+		}
+		;
 %%
 
 
