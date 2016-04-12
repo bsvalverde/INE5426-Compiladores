@@ -19,6 +19,7 @@ var [a-zA-Z]+
 {var}		    {yylval.variable = yytext; return T_VAR;}
 "+"                 {return T_PLUS;}
 "*"		    {return T_MULT;}
+"="			{return T_EQ;}
 ","		    {return COMMA;}
 \n                  {return T_NL;}
 .                   {yyerror("Unknown token! %c\n", *yytext);} /*complains about every unknown character*/

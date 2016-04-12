@@ -21,13 +21,13 @@ extern void yyerror(const char* s, ...);
  */
 %token <integer> T_INT
 %token <variable> T_VAR
-%token T_PLUS T_MULT T_DEF T_NL COMMA
+%token T_PLUS T_MULT T_DEF T_NL COMMA T_EQ
 
 /* type defines the type of our nonterminal symbols.
  * Types should match the names used in the union.
  * Example: %type<node> expr
  */
-%type <node> expr line declvar
+%type <node> expr line declvar attrvar
 %type <block> lines program
 
 /* Operator precedence for mathematical operators
@@ -47,16 +47,26 @@ program : lines { programRoot = $1; }
         ;
         
 
-lines   : line { $$ = new AST::Block(); $$->lines.push_back($1); printf("lala %d\n", (int)$$->lines.size());}
-        | lines line { if($2 != NULL) $1->lines.push_back($2); printf("lala %d\n", (int)$$->lines.size());}
+lines   : line { $$ = new AST::Block(); $$->lines.push_back($1); }
+        | lines line { if($2 != NULL) $1->lines.push_back($2); }
         ;
 
 line    : T_NL { $$ = NULL; } /*nothing here to be used */
         | expr T_NL /*$$ = $1 when nothing is said*/
 		| T_DEF declvar T_NL {$$ = $2;}
+		| attrvar T_NL
         ;
 
 expr    : T_INT { $$ = new AST::Integer($1); printf("Inteiro %d identificado.\n", $1); }
+		
+		| T_VAR { 
+			// if(!Symtable::getInstance()->hasVar($1)) {
+			// 	printf("ERRO: Variavel %s não definida.\n", $1);
+			// 	exit(1);
+			// }
+			$$ = new AST::Variable($1, NULL); 
+			printf("Variavel %s identificada.\n", $1); 
+		}
 
     	| expr T_PLUS expr { 
 			$$ = new AST::BinOp($1, AST::plus, $3);
@@ -69,18 +79,38 @@ expr    : T_INT { $$ = new AST::Integer($1); printf("Inteiro %d identificado.\n"
 		}
 
         | expr error { yyerrok; $$ = $1; } /*just a point for error recovery*/
+
 		;
 
 declvar : T_VAR {
+			if(Symtable::getInstance()->hasVar($1)) {
+				printf("ERRO: Variavel %s já definida.\n", $1);
+				exit(1);
+			}
 			$$ = new AST::Variable($1, NULL);					
 			printf("Definição da variável %s.\n", $1);
 		}
 
 		| declvar COMMA T_VAR {
+			if(Symtable::getInstance()->hasVar($3)) {
+				printf("ERRO: Variavel %s já definida.\n", $3);
+				exit(1);
+			}
 			$$ = new AST::Variable($3, $1);
 			printf("Definição da variável %s.\n", $3);
 		}
 		;
+
+attrvar : T_VAR T_EQ expr {
+			// if(!Symtable::getInstance()->hasVar($1)) {
+			// 	printf("ERRO: Variavel %s não definida.\n", $1);
+			// 	exit(1);
+			// }
+			$$ = new AST::BinOp(new AST::Variable($1, NULL), AST::assign, $3);
+			// AST::Integer* integer = (AST::Integer*)$3;
+			// Symtable::getInstance()->setVar($1, integer->value);
+		}
+
 %%
 
 

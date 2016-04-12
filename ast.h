@@ -1,13 +1,14 @@
 #pragma once
 
 #include <iostream>
-
 #include <vector>
+
+#include "symtable.h"
 
 namespace AST {
 
 //Binary operations
-enum Operation { plus, mult };
+enum Operation { plus, mult, assign };
 
 class Node;
 
@@ -32,7 +33,7 @@ class Variable : public Node {
 	public:
 		char* name;
 		Node* next;
-		Variable(char* name, Node* next) : name(name), next(next) {  }
+        Variable(char* name, Node* next) : name(name), next(next) { Symtable::getInstance()->addVar(name, 0); }
 		void printTree();
 		int computeTree();
 };

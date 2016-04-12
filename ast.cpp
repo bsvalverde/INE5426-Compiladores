@@ -12,7 +12,8 @@ void BinOp::printTree(){
     left->printTree();
     switch(op){
         case plus: std::cout << " + "; break;
-	case mult: std::cout << " * "; break;
+        case mult: std::cout << " * "; break;
+        case assign: std::cout << " = "; break;
     }
     right->printTree();
     return;
@@ -26,6 +27,10 @@ void Block::printTree(){
 }
 
 void Variable::printTree() {
+    if(next != NULL){
+        next->printTree();
+        std::cout << ", ";
+    }
 	std::cout << name;
 	return;
 }
@@ -36,7 +41,7 @@ int Integer::computeTree(){
 }
 
 int Variable::computeTree(){
-	return 0;
+	return Symtable::getInstance()->getVar(this->name);
 }
 
 int BinOp::computeTree(){
@@ -46,6 +51,7 @@ int BinOp::computeTree(){
     switch(op){
          case plus: value = lvalue + rvalue; break;
 		 case mult: value = lvalue * rvalue; break;
+         case assign: Symtable::getInstance()->setVar(dynamic_cast<Variable*>(left)->name, rvalue);
     }
     return value;
 }
