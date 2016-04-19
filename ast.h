@@ -31,9 +31,9 @@ class Integer : public Node {
 
 class Variable : public Node {
 	public:
-		char* name;
+		const char* name;
 		Node* next;
-        Variable(char* name, Node* next) : name(name), next(next) { Symtable::getInstance()->addVar(name, 0); }
+        Variable(const char* name, Node* next) : name(name), next(next) { }
 		void printTree();
 		int computeTree();
 };

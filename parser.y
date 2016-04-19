@@ -12,7 +12,7 @@ extern void yyerror(const char* s, ...);
  */
 %union {
     int integer;
-	char* variable;
+	const char* variable;
     AST::Node *node;
     AST::Block *block;
 }
@@ -27,7 +27,7 @@ extern void yyerror(const char* s, ...);
  * Types should match the names used in the union.
  * Example: %type<node> expr
  */
-%type <node> expr line declvar attrvar
+%type <node> expr line declvar
 %type <block> lines program
 
 /* Operator precedence for mathematical operators
@@ -54,16 +54,17 @@ lines   : line { $$ = new AST::Block(); $$->lines.push_back($1); }
 line    : T_NL { $$ = NULL; } /*nothing here to be used */
         | expr T_NL /*$$ = $1 when nothing is said*/
 		| T_DEF declvar T_NL {$$ = $2;}
-		| attrvar T_NL
+		//| attrvar T_NL
+	| T_VAR T_EQ expr {$$ = new AST::BinOp(new AST::Variable($1, NULL), AST::assign, $3);} 
         ;
 
 expr    : T_INT { $$ = new AST::Integer($1); printf("Inteiro %d identificado.\n", $1); }
 		
 		| T_VAR { 
-			// if(!Symtable::getInstance()->hasVar($1)) {
-			// 	printf("ERRO: Variavel %s não definida.\n", $1);
-			// 	exit(1);
-			// }
+			//if(!Symtable::getInstance()->hasVar($1)) {
+			//	printf("ERRO: Variavel %s não definida.\n", $1);
+			//	exit(1);
+			//}
 			$$ = new AST::Variable($1, NULL); 
 			printf("Variavel %s identificada.\n", $1); 
 		}
@@ -87,6 +88,7 @@ declvar : T_VAR {
 				printf("ERRO: Variavel %s já definida.\n", $1);
 				exit(1);
 			}
+			Symtable::getInstance()->addVar((const char*)$1, 0);
 			$$ = new AST::Variable($1, NULL);					
 			printf("Definição da variável %s.\n", $1);
 		}
@@ -96,20 +98,21 @@ declvar : T_VAR {
 				printf("ERRO: Variavel %s já definida.\n", $3);
 				exit(1);
 			}
+			Symtable::getInstance()->addVar((const char*)$1, 0);
 			$$ = new AST::Variable($3, $1);
 			printf("Definição da variável %s.\n", $3);
 		}
 		;
 
-attrvar : T_VAR T_EQ expr {
+//attrvar : T_VAR T_EQ expr {
 			// if(!Symtable::getInstance()->hasVar($1)) {
 			// 	printf("ERRO: Variavel %s não definida.\n", $1);
 			// 	exit(1);
 			// }
-			$$ = new AST::BinOp(new AST::Variable($1, NULL), AST::assign, $3);
+//			$$ = new AST::BinOp(new AST::Variable($1, NULL), AST::assign, $3);
 			// AST::Integer* integer = (AST::Integer*)$3;
 			// Symtable::getInstance()->setVar($1, integer->value);
-		}
+//		}
 
 %%
 
