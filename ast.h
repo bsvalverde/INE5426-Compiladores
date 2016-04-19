@@ -31,9 +31,9 @@ class Integer : public Node {
 
 class Variable : public Node {
 	public:
-		const char* name;
+		std::string name;
 		Node* next;
-        Variable(const char* name, Node* next) : name(name), next(next) { }
+        Variable(std::string name, Node* next) : name(name), next(next) { }
 		void printTree();
 		int computeTree();
 };

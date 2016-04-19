@@ -3,13 +3,13 @@
 class Symtable {
 public:
 	static Symtable* getInstance();
-	void addVar(const char* name, int value);
-	int getVar(const char* name);
-	void setVar(const char* name, int newValue);
-	bool hasVar(const char* name);
+	void addVar(std::string name, int value);
+	int getVar(std::string name);
+	void setVar(std::string name, int newValue);
+	bool hasVar(std::string name);
 private:
 	Symtable();
 
 	static Symtable* instance;
-	std::map<const char*, int> table;
+	std::map<std::string, int> table;
 };
