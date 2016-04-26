@@ -21,18 +21,12 @@ void Symtable::addVar(std::string name, int value) {
 }
 
 int Symtable::getVar(std::string name) {
-	for(std::map<std::string, int>::iterator it = table.begin(); it != table.end(); ++it) {
-	  printf(" lala: %s", it->first.c_str());
-	}
-	printf("\n");
-	printf("get %s = %d\n", name.c_str(), this->table[name]);
 	return this->table[name];
 }
 
 void Symtable::setVar(std::string name, int newValue) {
 //	this->table.find(name)->second = newValue;
 	this->table[name] = newValue;
-	printf("set %s = %d\n", name.c_str(), this->table[name]);
 }
 
 bool Symtable::hasVar(std::string name) {

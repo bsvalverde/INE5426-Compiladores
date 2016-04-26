@@ -41,7 +41,6 @@ int Integer::computeTree(){
 }
 
 int Variable::computeTree(){
-	std::cout << "var compute " << Symtable::getInstance()->getVar(this->name) << std::endl;
 	return Symtable::getInstance()->getVar(this->name);
 }
 
