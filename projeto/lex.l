@@ -1,5 +1,6 @@
 %{
 #include <string>
+#include "ast.h"
 #include "parser.h"
 extern int yylineno;
 void yyerror(const char* s, ...);
@@ -11,15 +12,16 @@ id [a-z]+
 digito [0-9]
 
 inteiro digito+
-real digito+\.digito* | digito*\.digito+
-bool "TRUE" | "FALSE"
+real digito+\.digito*|digito*\.digito+
+bool "TRUE"|"FALSE"
 
 %%
 
- //Ignorar espaços
-[ \t\n];
+ /* Ignorar espaços */
+[ \t] ;
+\n ;
 
- //Tipos
+ /* Tipos */
 {inteiro} {
 	yylval.inteiro = std::atoi(yytext);
 	return T_INT;
@@ -33,7 +35,7 @@ bool "TRUE" | "FALSE"
 	return T_BOOL;
 }
 
- //Operadores
+ /* Operadores */
 "+" 	{return T_PLUS;}
 "*" 	{return T_MULT;}
 "-" 	{return T_SUB;}
@@ -45,12 +47,12 @@ bool "TRUE" | "FALSE"
 "("		{return T_APAR;}
 ")"		{return T_FPAR;}
 
- //Atribuições
+ /* Atribuições */
 "int" 	{return T_DINT;}
 "real" 	{return T_DREAL;}
 "bool" 	{return T_DBOOL;}
 
- //Operadores relacionais
+ /* Operadores relacionais */
 "~=" 	{return T_NEQ;}
 "=" 	{return T_EQ;}
 ">=" 	{return T_GEQ;}
@@ -59,7 +61,7 @@ bool "TRUE" | "FALSE"
 "<" 	{return T_LT;}
 
 
- //Misc
+ /* Misc */
 {id}	{
 	yylval.id = strdup(yytext);
 	return T_ID;
@@ -68,7 +70,7 @@ bool "TRUE" | "FALSE"
 ";" 	{return T_ENDL;}
 ","		{return T_COMMA;}
 
- //Complains about every unknown character
+ /* Complains about every unknown character */
 .		{yyerror("Unknown token! %c\n", *yytext);}
 
 %%
