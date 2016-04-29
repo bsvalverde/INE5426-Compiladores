@@ -55,9 +55,9 @@ bool "TRUE"|"FALSE"
  /* Operadores relacionais */
 "~=" 	{return T_NEQ;}
 "=" 	{return T_EQ;}
-">=" 	{return T_GEQ;}
+">=" 	{return T_GTE;}
 ">" 	{return T_GT;}
-"<=" 	{return T_LEQ;}
+"<=" 	{return T_LTE;}
 "<" 	{return T_LT;}
 
 
