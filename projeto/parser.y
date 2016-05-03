@@ -1,8 +1,11 @@
 %{
 #include <string>
 #include "ast.h"
+#include "symtable.h"
+#include "types.h"
 
 AST::Block* root;
+ST::SymTable* symtable = new ST::SymTable();
 
 extern int yylex();
 extern void yyerror(const char* s, ...);	
@@ -39,8 +42,8 @@ extern void yyerror(const char* s, ...);
 %left T_LT T_GT T_LTE T_GTE
 %left T_PLUS T_SUB
 %left T_MULT T_DIV
-%right U_NEG U_NOT
-%left T_APAR
+%right U_NEG T_NOT
+%left U_PAR
 
 %start program
 
@@ -62,16 +65,39 @@ cmd 	: decl T_ENDL
 		| attr T_ENDL
 		;
 
-decl	: T_DINT T_COLON listvar { $$ = $3; }
-		| T_DREAL T_COLON listvar { $$ = $3; }
-		| T_DBOOL T_COLON listvar { $$ = $3; }
+decl	: T_DINT T_COLON listvar { 
+			AST::Variable* var = (AST::Variable*) $3;
+			while(var != NULL) {
+				symtable->getSymbol(var->name).setType(Type::inteiro);
+				var = (AST::Variable*) var->next;
+			}
+			$$ = $3;
+		}
+		| T_DREAL T_COLON listvar { 
+			AST::Variable* var = (AST::Variable*) $3;
+			while(var != NULL) {
+				symtable->getSymbol(var->name).setType(Type::real);
+				var = (AST::Variable*) var->next;
+			}
+			$$ = $3;
+		}
+		| T_DBOOL T_COLON listvar { 
+			AST::Variable* var = (AST::Variable*) $3;
+			while(var != NULL) {
+				symtable->getSymbol(var->name).setType(Type::booleano);
+				var = (AST::Variable*) var->next;
+			}
+			$$ = $3;
+		}
 		;
 
 listvar	: T_ID {
+			symtable->addSymbol($1);
 			$$ = new AST::Variable($1, NULL);
 			printf("declaração da variável %s\n", $1);
 		}
 		| listvar T_COMMA T_ID {
+			symtable->addSymbol($3);
 			$$ = new AST::Variable($3, $1);
 			printf("declaração da variável %s\n", $3);
 		}
@@ -87,7 +113,10 @@ expr	: T_ID {
 			printf("encontrado token %s\n", $1); 
 			$$ = new AST::Variable($1, NULL);
 		}
-		| T_INT { printf("encontrado inteiro %d\n", $1); }
+		| T_INT { 
+			printf("encontrado inteiro %d\n", $1); 
+			$$ = new AST::Const((void*) $1, Type::inteiro);
+		}
 		| T_REAL { printf("encontrado real %lf\n", $1); }
 		| T_BOOL { printf("encontrado bool %s\n", $1); }
 		| expr T_PLUS expr { 
@@ -142,11 +171,11 @@ expr	: T_ID {
 			printf("identificado negativo\n"); 
 			$$ = new AST::UnOp(AST::neg, $2);
 		}
-		| T_NOT expr %prec U_NOT {
+		| T_NOT expr {
 			printf("identificado negação\n"); 
 			$$ = new AST::UnOp(AST::_not, $2);
 		}
-		| T_APAR expr T_FPAR %prec T_APAR { 
+		| T_APAR expr T_FPAR %prec U_PAR { 
 			printf("identificado parenteses\n"); 
 		}
 		;

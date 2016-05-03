@@ -9,10 +9,9 @@ void yyerror(const char* s, ...);
 %option noyywrap nodefault yylineno
 
 id [a-z]+
-digito [0-9]
 
-inteiro digito+
-real digito+\.digito*|digito*\.digito+
+inteiro [0-9]+
+real [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 bool "TRUE"|"FALSE"
 
 %%
