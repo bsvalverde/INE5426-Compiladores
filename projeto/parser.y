@@ -117,8 +117,14 @@ expr	: T_ID {
 			printf("encontrado inteiro %d\n", $1); 
 			$$ = new AST::Const((void*) $1, Type::inteiro);
 		}
-		| T_REAL { printf("encontrado real %lf\n", $1); }
-		| T_BOOL { printf("encontrado bool %s\n", $1); }
+		| T_REAL { 
+			printf("encontrado real %lf\n", $1); 
+			$$ = new AST::Const((void*) $1, Type::real);
+		}
+		| T_BOOL { 
+			printf("encontrado bool %s\n", $1);
+			$$ = new AST::Const((void*) $1, Type::booleano);
+		}
 		| expr T_PLUS expr { 
 			printf("identificado soma\n"); 
 			$$ = new AST::BinOp($1, AST::plus, $3);
