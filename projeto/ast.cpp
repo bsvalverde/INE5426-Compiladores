@@ -15,6 +15,7 @@ std::string UnOp::printTree() {
 	std::string retorno = "";
 	switch(op){
 		case decl:
+		{
 			retorno = "Declaracao de variavel ";
 			Variable* next = (Variable *)this->next;
 			switch(next->type){
@@ -35,6 +36,7 @@ std::string UnOp::printTree() {
 				next = (Variable *)next->next;
 			}
 			break;
+		}
 		case _not:break;
 		case neg:break;
 	}
