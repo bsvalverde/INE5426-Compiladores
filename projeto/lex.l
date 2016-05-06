@@ -72,13 +72,13 @@ bool "TRUE"|"FALSE"
 ","		{return T_COMMA;}
 
  /* Complains about every unknown character */
-.		{yyerror("Unknown token! %c\n", *yytext);}
+.		{yyerror("Erro lexico: simbolo desconhecido: %c.\n", *yytext);}
 
 %%
 
 void yyerror(const char *s, ...){
     va_list ap;
     va_start(ap, s);
-    std::fprintf(stderr, "Line %d: error: ", yylineno);
+    std::fprintf(stderr, "[Linha %d] ", yylineno);
     std::vfprintf(stderr, s, ap);
 }

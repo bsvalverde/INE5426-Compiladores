@@ -3,31 +3,10 @@
 
 #include <vector>
 #include "symtable.h"
-#include "types.h"
+#include "enums.h"
+#include "stringfier.h"
 
 namespace AST {
-
-enum UnOperation {
-	decl,
-	_not,
-	neg
-};
-
-enum BinOperation {
-	plus,
-	sub,
-	mult,
-	div,
-	gt,
-	lt,
-	gte,
-	lte,
-	eq,
-	neq,
-	_and,
-	_or,
-	assign
-};
 
 class Node;
 

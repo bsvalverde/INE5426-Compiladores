@@ -2,7 +2,7 @@
 #include <string>
 #include "ast.h"
 #include "symtable.h"
-#include "types.h"
+#include "enums.h"
 
 AST::Block* root;
 ST::SymTable* symtable = new ST::SymTable();
@@ -77,7 +77,7 @@ decl	: T_DINT arr T_COLON listvar {
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(AST::decl, $4);
+			$$ = new AST::UnOp(decl, $4);
 		}
 		| T_DREAL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
@@ -88,7 +88,7 @@ decl	: T_DINT arr T_COLON listvar {
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(AST::decl, $4);
+			$$ = new AST::UnOp(decl, $4);
 		}
 		| T_DBOOL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
@@ -99,7 +99,7 @@ decl	: T_DINT arr T_COLON listvar {
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(AST::decl, $4);
+			$$ = new AST::UnOp(decl, $4);
 		}
 		;
 
@@ -120,7 +120,7 @@ listvar	: T_ID {
 		;
 
 attr 	: T_ID T_ATTR expr {
-			$$ = new AST::BinOp(new AST::Variable($1, NULL), AST::assign, $3); 
+			$$ = new AST::BinOp(new AST::Variable($1, NULL), assign, $3); 
 		}
 		;
 
@@ -137,46 +137,46 @@ expr	: T_ID {
 			$$ = new AST::Const($1, Type::booleano);
 		}
 		| expr T_PLUS expr {
-			$$ = new AST::BinOp($1, AST::plus, $3);
+			$$ = new AST::BinOp($1, plus, $3);
 		}
 		| expr T_SUB expr {
-			$$ = new AST::BinOp($1, AST::sub, $3);
+			$$ = new AST::BinOp($1, sub, $3);
 		}
 		| expr T_MULT expr {
-			$$ = new AST::BinOp($1, AST::mult, $3);
+			$$ = new AST::BinOp($1, mult, $3);
 		}
 		| expr T_DIV expr {
-			$$ = new AST::BinOp($1, AST::div, $3);
+			$$ = new AST::BinOp($1, _div, $3);
 		}
 		| expr T_EQ expr {
-			$$ = new AST::BinOp($1, AST::eq, $3);
+			$$ = new AST::BinOp($1, eq, $3);
 		}
 		| expr T_NEQ expr {
-			$$ = new AST::BinOp($1, AST::neq, $3);
+			$$ = new AST::BinOp($1, neq, $3);
 		}
 		| expr T_LT expr {
-			$$ = new AST::BinOp($1, AST::lt, $3);
+			$$ = new AST::BinOp($1, lt, $3);
 		}
 		| expr T_GT expr {
-			$$ = new AST::BinOp($1, AST::gt, $3);
+			$$ = new AST::BinOp($1, gt, $3);
 		}
 		| expr T_LTE expr {
-			$$ = new AST::BinOp($1, AST::lte, $3);
+			$$ = new AST::BinOp($1, lte, $3);
 		}
 		| expr T_GTE expr {
-			$$ = new AST::BinOp($1, AST::gte, $3);
+			$$ = new AST::BinOp($1, gte, $3);
 		}
 		| expr T_AND expr {
-			$$ = new AST::BinOp($1, AST::_and, $3);
+			$$ = new AST::BinOp($1, _and, $3);
 		}
 		| expr T_OR expr { 
-			$$ = new AST::BinOp($1, AST::_or, $3);
+			$$ = new AST::BinOp($1, _or, $3);
 		}
 		| T_SUB expr %prec U_NEG { 
-			$$ = new AST::UnOp(AST::neg, $2);
+			$$ = new AST::UnOp(neg, $2);
 		}
 		| T_NOT expr { 
-			$$ = new AST::UnOp(AST::_not, $2);
+			$$ = new AST::UnOp(_not, $2);
 		}
 		| T_APAR expr T_FPAR %prec U_PAR { 
 			$$ = new AST::Par($2);

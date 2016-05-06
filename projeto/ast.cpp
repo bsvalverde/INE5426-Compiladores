@@ -16,7 +16,7 @@ std::string UnOp::printTree() {
 	switch(op){
 		case decl:
 		{
-			retorno = "Declaracao de variavel " + TypeStringfier::typeStringF(next->type) + ": ";
+			retorno = "Declaracao de variavel " + Stringfier::typeStringF(next->type) + ": ";
 			Variable* next = (Variable *)this->next;
 			std::string vars = next->name;
 			next = (Variable *)next->next;
@@ -40,7 +40,7 @@ std::string BinOp::printTree() {
 	rvalue = right->printTree();
 	if (left->type != right->type){
 		if(left->type == Type::booleano || right->type == Type::booleano){
-			yyerror("ERRO SEMANTICO:");//TODO
+			yyerror("ERRO SEMANTICO\n");//TODO
 		} else {
 			std::string *mudar = &lvalue;
 				if(right->type == Type::inteiro){
@@ -51,79 +51,39 @@ std::string BinOp::printTree() {
 		}
 	}
 	this->type = right->type;
+	std::string opString = Stringfier::binOpString(op);
     switch(op){
 	case plus:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (soma " + TypeStringfier::typeStringF(this->type) + ") " + rvalue + ")";
-		break;
 	case sub:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (subtracao " + TypeStringfier::typeStringF(this->type) + ") " + rvalue + ")";
-		break;
 	case mult:
+	case _div:
 		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
+			yyerror("ERRO SEMANTICO\n");//TODO
 		}
-		retorno = "(" + lvalue + " (multiplicacao " + TypeStringfier::typeStringF(this->type) + ") " + rvalue + ")";
-		break;
-	case div:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (divisao " + TypeStringfier::typeStringF(this->type) + ") " + rvalue + ")";
+		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringF(this->type) + ") " + rvalue + ")";
 		break;
 	case gt:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (maior " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
-		break;
 	case lt:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (menor " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
-		break;
 	case gte:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (maior ou igual " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
-		break;
 	case lte:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (menor ou igual " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
-		break;
 	case eq:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (igual " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
-		break;
 	case neq:
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
+		// if(left->type != booleano) {
+		// 	yyerror(("Erro semantico: operacao " + opString + " espera booleano do lado esquerdo da atribuicao.\n").c_str());
+		// }
+		if(left->type == Type::booleano || right->type == Type::booleano){
+			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano\n").c_str());//TODO
 		}
-		retorno = "(" + lvalue + " (diferente " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
+		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
 	case _and:
-		if(this->type != Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
-		}
-		retorno = "(" + lvalue + " (e " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
-		break;
 	case _or:
 		if(this->type != Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
+			yyerror("ERRO SEMANTICO\n");//TODO
 		}
-		retorno = "(" + lvalue + " (ou " + TypeStringfier::typeStringM(this->type) + ") " + rvalue + ")";
+		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
+	
 	case assign:
 		retorno = "Atribuicao de valor para " + lvalue + ":" + " " + rvalue;
 		break;
@@ -135,12 +95,12 @@ std::string BinOp::printTree() {
 std::string Variable::printTree() {
 	ST::Symbol* s = symtable->getSymbol(this->name);
 	this->type = s->type;
-	std::string retorno = "variavel " +	TypeStringfier::typeStringF(this->type) + " " + this->name;
+	std::string retorno = "variavel " +	Stringfier::typeStringF(this->type) + " " + this->name;
 	return retorno;
 }
 
 std::string Const::printTree() {
-	std::string retorno = "valor " + TypeStringfier::typeStringM(this->type) + " " + this->value;
+	std::string retorno = "valor " + Stringfier::typeStringM(this->type) + " " + this->value;
 	return retorno;
 }
 

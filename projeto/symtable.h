@@ -2,7 +2,7 @@
 #pragma once
 
 #include <map>
-#include "types.h"
+#include "enums.h"
 
 extern void yyerror(const char* s, ...);
 

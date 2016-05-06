@@ -16,7 +16,7 @@ void SymTable::addSymbol(std::string name) {
 
 Symbol* SymTable::getSymbol(std::string name) {
 	if(!hasSymbol(name)) {
-		yyerror("ERRO: Variável %s não definida.\n", name.c_str());
+		yyerror("Erro semantico: variavel %s nao declarada.\n", name.c_str());
 		return new Symbol();
 	} else {
 		return this->table[name];
@@ -38,7 +38,7 @@ bool SymTable::hasSymbol(std::string name) {
 
 /* Symbol */
 Symbol::Symbol() {
-	this->type = inteiro;
+	this->type = desconhecido;
 	this->initialized = false;
 }
 
