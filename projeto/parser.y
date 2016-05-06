@@ -17,6 +17,7 @@ extern void yyerror(const char* s, ...);
 	const char* booleano;
 	const char* id;
 
+	const char* arrLen;
 	AST::Node* node;
 	AST::Block* block;
 }
@@ -29,6 +30,7 @@ extern void yyerror(const char* s, ...);
 %token T_PLUS T_MULT T_SUB T_DIV T_ATTR
 %token T_AND T_OR T_NOT
 %token T_APAR T_FPAR 
+%token T_AARR T_FARR
 %token T_DINT T_DREAL T_DBOOL
 %token T_NEQ T_EQ T_GTE T_GT T_LTE T_LT 
 %token T_COLON T_ENDL T_COMMA
@@ -36,6 +38,7 @@ extern void yyerror(const char* s, ...);
 //Deinição de tipos não-terminais
 %type <block> program cmds
 %type <node> cmd decl listvar attr expr
+%type <arrLen> arr
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -65,30 +68,36 @@ cmd 	: decl T_ENDL
 		| attr T_ENDL
 		;
 
-decl	: T_DINT T_COLON listvar { 
-			AST::Variable* var = (AST::Variable*) $3;
+decl	: T_DINT arr T_COLON listvar { 
+			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				symtable->getSymbol(var->name).setType(Type::inteiro);
+				symtable->getSymbol(var->name)->setType(Type::inteiro);
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(AST::decl, $3);
+			$$ = new AST::UnOp(AST::decl, $4);
 		}
-		| T_DREAL T_COLON listvar { 
-			AST::Variable* var = (AST::Variable*) $3;
+		| T_DREAL arr T_COLON listvar { 
+			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				symtable->getSymbol(var->name).setType(Type::real);
+				symtable->getSymbol(var->name)->setType(Type::real);
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(AST::decl, $3);
+			$$ = new AST::UnOp(AST::decl, $4);
 		}
-		| T_DBOOL T_COLON listvar { 
-			AST::Variable* var = (AST::Variable*) $3;
+		| T_DBOOL arr T_COLON listvar { 
+			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				symtable->getSymbol(var->name).setType(Type::booleano);
+				symtable->getSymbol(var->name)->setType(Type::booleano);
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(AST::decl, $3);
+			$$ = new AST::UnOp(AST::decl, $4);
 		}
+		;
+
+arr 	: T_AARR T_INT T_FARR {
+			$$ = $2;
+		}
+		| 
 		;
 
 listvar	: T_ID {

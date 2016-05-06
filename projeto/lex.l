@@ -45,6 +45,8 @@ bool "TRUE"|"FALSE"
 "~"		{return T_NOT;}
 "("		{return T_APAR;}
 ")"		{return T_FPAR;}
+"["		{return T_AARR;}
+"]"		{return T_FARR;}
 
  /* Atribuições */
 "int" 	{return T_DINT;}
