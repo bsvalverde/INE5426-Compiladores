@@ -14,13 +14,13 @@ class SymTable {
 public:
 	SymTable();
 	void addSymbol(std::string name);
-	Symbol getSymbol(std::string name);
-	void setSymbol(std::string name, Symbol newValue);
+	Symbol* getSymbol(std::string name);
+	void setSymbol(std::string name, Symbol* newValue);
 
 private:
 	bool hasSymbol(std::string name);
 
-	std::map<std::string, Symbol> table;
+	std::map<std::string, Symbol*> table;
 };
 
 class Symbol {
