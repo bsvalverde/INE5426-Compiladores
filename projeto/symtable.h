@@ -26,11 +26,10 @@ private:
 class Symbol {
 public:
 	Symbol();
-	Symbol(Type type, void* value) : type(type), value(value) {}
+	Symbol(Type type) : type(type) {}
 	void setType(Type type);
 
 	Type type;
-	void* value;
 };
 
 }

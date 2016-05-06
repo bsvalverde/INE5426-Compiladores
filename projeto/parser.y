@@ -12,8 +12,8 @@ extern void yyerror(const char* s, ...);
 %}
 
 %union {
-	int inteiro;
-	double real;
+	const char* inteiro;
+	const char* real;
 	const char* booleano;
 	const char* id;
 
@@ -71,7 +71,7 @@ decl	: T_DINT T_COLON listvar {
 				symtable->getSymbol(var->name).setType(Type::inteiro);
 				var = (AST::Variable*) var->next;
 			}
-			$$ = $3;
+			$$ = new AST::UnOp(AST::decl, $3);
 		}
 		| T_DREAL T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $3;
@@ -79,7 +79,7 @@ decl	: T_DINT T_COLON listvar {
 				symtable->getSymbol(var->name).setType(Type::real);
 				var = (AST::Variable*) var->next;
 			}
-			$$ = $3;
+			$$ = new AST::UnOp(AST::decl, $3);
 		}
 		| T_DBOOL T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $3;
@@ -87,102 +87,81 @@ decl	: T_DINT T_COLON listvar {
 				symtable->getSymbol(var->name).setType(Type::booleano);
 				var = (AST::Variable*) var->next;
 			}
-			$$ = $3;
+			$$ = new AST::UnOp(AST::decl, $3);
 		}
 		;
 
 listvar	: T_ID {
 			symtable->addSymbol($1);
 			$$ = new AST::Variable($1, NULL);
-			printf("declaração da variável %s\n", $1);
 		}
 		| listvar T_COMMA T_ID {
 			symtable->addSymbol($3);
 			$$ = new AST::Variable($3, $1);
-			printf("declaração da variável %s\n", $3);
 		}
 		;
 
-attr 	: T_ID T_ATTR expr { 
-			printf("encontrada atribuicao\n");
+attr 	: T_ID T_ATTR expr {
 			$$ = new AST::BinOp(new AST::Variable($1, NULL), AST::assign, $3); 
 		}
 		;
 
 expr	: T_ID { 
-			printf("encontrado token %s\n", $1); 
 			$$ = new AST::Variable($1, NULL);
 		}
-		| T_INT { 
-			printf("encontrado inteiro %d\n", $1); 
-			$$ = new AST::Const((void*) $1, Type::inteiro);
+		| T_INT {
+			$$ = new AST::Const($1, Type::inteiro);
 		}
-		| T_REAL { 
-			printf("encontrado real %lf\n", $1); 
-			$$ = new AST::Const((void*) $1, Type::real);
+		| T_REAL {
+			$$ = new AST::Const($1, Type::real);
 		}
-		| T_BOOL { 
-			printf("encontrado bool %s\n", $1);
-			$$ = new AST::Const((void*) $1, Type::booleano);
+		| T_BOOL {
+			$$ = new AST::Const($1, Type::booleano);
 		}
-		| expr T_PLUS expr { 
-			printf("identificado soma\n"); 
+		| expr T_PLUS expr {
 			$$ = new AST::BinOp($1, AST::plus, $3);
 		}
-		| expr T_SUB expr { 
-			printf("identificado subtração\n"); 
+		| expr T_SUB expr {
 			$$ = new AST::BinOp($1, AST::sub, $3);
 		}
-		| expr T_MULT expr { 
-			printf("identificado multiplicação\n"); 
+		| expr T_MULT expr {
 			$$ = new AST::BinOp($1, AST::mult, $3);
 		}
-		| expr T_DIV expr { 
-			printf("identificado divisão\n"); 
+		| expr T_DIV expr {
 			$$ = new AST::BinOp($1, AST::div, $3);
 		}
 		| expr T_EQ expr {
-			printf("identificado equals\n"); 
 			$$ = new AST::BinOp($1, AST::eq, $3);
 		}
 		| expr T_NEQ expr {
-			printf("identificado not equals\n"); 
 			$$ = new AST::BinOp($1, AST::neq, $3);
 		}
 		| expr T_LT expr {
-			printf("identificado less than\n"); 
 			$$ = new AST::BinOp($1, AST::lt, $3);
 		}
 		| expr T_GT expr {
-			printf("identificado greater than\n"); 
 			$$ = new AST::BinOp($1, AST::gt, $3);
 		}
 		| expr T_LTE expr {
-			printf("identificado greater than or equal\n"); 
 			$$ = new AST::BinOp($1, AST::lte, $3);
 		}
 		| expr T_GTE expr {
-			printf("identificado greater than or equal\n"); 
 			$$ = new AST::BinOp($1, AST::gte, $3);
 		}
 		| expr T_AND expr {
-			printf("identificado AND\n"); 
 			$$ = new AST::BinOp($1, AST::_and, $3);
 		}
-		| expr T_OR expr {
-			printf("identificado OR\n"); 
+		| expr T_OR expr { 
 			$$ = new AST::BinOp($1, AST::_or, $3);
 		}
 		| T_SUB expr %prec U_NEG { 
-			printf("identificado negativo\n"); 
 			$$ = new AST::UnOp(AST::neg, $2);
 		}
-		| T_NOT expr {
-			printf("identificado negação\n"); 
+		| T_NOT expr { 
 			$$ = new AST::UnOp(AST::_not, $2);
 		}
 		| T_APAR expr T_FPAR %prec U_PAR { 
-			printf("identificado parenteses\n"); 
+			$$ = $2; 
 		}
 		;
 

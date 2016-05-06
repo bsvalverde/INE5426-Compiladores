@@ -8,8 +8,8 @@ extern int yyparse();
 int main(int argc, char **argv)
 {
     yyparse();                  //parses whole data
-    // programRoot->printTree();   //prints the ASTs
+    root->printTree();   //prints the ASTs
     std::cout << std::endl;
-    root->computeTree(); //computes the ASTs
+    // root->computeTree(); //computes the ASTs
     return 0;
 }

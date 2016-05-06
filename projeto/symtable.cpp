@@ -38,8 +38,7 @@ bool SymTable::hasSymbol(std::string name) {
 
 /* Symbol */
 Symbol::Symbol() {
-	this->type = inteiro; 
-	this->value = 0;
+	this->type = inteiro;
 }
 
 void Symbol::setType(Type type) {

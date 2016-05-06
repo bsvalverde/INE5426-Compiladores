@@ -22,11 +22,11 @@ bool "TRUE"|"FALSE"
 
  /* Tipos */
 {inteiro} {
-	yylval.inteiro = std::atoi(yytext);
+	yylval.inteiro = strdup(yytext);
 	return T_INT;
 }
 {real} {
-	yylval.real = std::atof(yytext);
+	yylval.real = strdup(yytext);
 	return T_REAL;
 }
 {bool} {

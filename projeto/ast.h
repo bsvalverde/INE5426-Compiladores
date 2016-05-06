@@ -8,6 +8,7 @@
 namespace AST {
 
 enum UnOperation {
+	decl,
 	_not,
 	neg
 };
@@ -35,7 +36,7 @@ typedef std::vector<Node*> NodeList;
 class Node {
 public:
     virtual ~Node() {}
-    virtual void* computeTree() {return 0;}
+    virtual std::string printTree() {return "";}
     Type type;
 };
 
@@ -43,16 +44,16 @@ class Block : public Node {
 public:
 	NodeList nodes;
 	Block() {}
-	void* computeTree();
+	std::string printTree();
 };
 
 class UnOp : public Node {
 public:
 	UnOperation op;
-	Node* right;
+	Node* next;
 
-	UnOp(UnOperation op, Node* right) : op(op), right(right) {}
-	void* computeTree();
+	UnOp(UnOperation op, Node* next) : op(op), next(next) {}
+	std::string printTree();
 };
 
 class BinOp : public Node {
@@ -62,7 +63,7 @@ public:
 	Node* right;
 
 	BinOp(Node* left, BinOperation op, Node* right) : left(left), op(op), right(right) {}
-	void* computeTree();
+	std::string printTree();
 };
 
 class Variable : public Node {
@@ -70,16 +71,16 @@ public:
 	std::string name;
 	Node* next;
 	Variable(std::string name, Node* next) : name(name), next(next) {}
-	void* computeTree();
+	std::string printTree();
 };
 
 class Const : public Node {
 public:
-	void* value;
-	Const(void* value, Type type) : value(value) {
+	std::string value;
+	Const(std::string value, Type type) : value(value) {
 		this->type = type;
 	}
-	void* computeTree();
+	std::string printTree();
 };
 
 }

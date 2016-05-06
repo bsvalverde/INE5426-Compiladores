@@ -4,77 +4,163 @@ using namespace AST;
 
 extern ST::SymTable* symtable;
 
-void* Block::computeTree() {
+std::string Block::printTree() {
 	for(Node* node : nodes) {
-		node->computeTree();
+		printf("%s\n", node->printTree().c_str());
 	}
-	return 0;
+	return "";
 }
 
-void* UnOp::computeTree() {
-	
+std::string UnOp::printTree() {
+	std::string retorno = "";
+	switch(op){
+		case decl:
+			retorno = "Declaracao de variavel ";
+			Variable* next = (Variable *)this->next;
+			switch(next->type){
+				case inteiro:
+					retorno += "inteira: ";
+					break;
+				case real:
+					retorno += "real: ";
+					break;
+				case booleano:
+					retorno += "booleana: ";
+					break;
+			}
+			retorno += next->name;
+			next = (Variable *)next->next;
+			while(next != NULL){
+				retorno += ", " + next->name;
+				next = (Variable *)next->next;
+			}
+			break;
+		case _not:break;
+		case neg:break;
+	}
+	return retorno;
 }
 
-void* BinOp::computeTree() {
-	void *value, *lvalue, *rvalue;
-    lvalue = left->computeTree();
-    rvalue = right->computeTree();
+std::string BinOp::printTree() {
+	std::string retorno, lvalue, rvalue, tipo;
+	retorno = "";
+	lvalue = left->printTree();
+	rvalue = right->printTree();
+	if (left->type != right->type){
+		if(left->type == Type::booleano || right->type == Type::booleano){
+			yyerror("ERRO SINTATICO:");//TODO
+		} else {
+			std::string *mudar = &lvalue;
+				if(right->type == Type::inteiro){
+					mudar = &lvalue;
+					right->type = left->type;
+				}
+			*mudar += " para real";
+		}
+	}
+	this->type = right->type;
+	tipo = "" + this->type;
     switch(op){
 	case plus:
-		value = (void*)((intptr_t) lvalue + (intptr_t) rvalue);
-		printf("%d + %d = %d\n", (intptr_t) lvalue, (intptr_t) rvalue, (intptr_t) value);
-
-		//type
-
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (soma " + tipo + ") " + rvalue + ")";
 		break;
 	case sub:
-		value = (void*)((intptr_t) lvalue - (intptr_t) rvalue);
-		printf("%d - %d = %d\n", (intptr_t) lvalue, (intptr_t) rvalue, (intptr_t) value);
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (subtracao " + tipo + ") " + rvalue + ")";
 		break;
 	case mult:
-		value = (void*)((intptr_t) lvalue * (intptr_t) rvalue);
-		printf("%d * %d = %d\n", (intptr_t) lvalue, (intptr_t) rvalue, (intptr_t) value);
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (multiplicacao " + tipo + ") " + rvalue + ")";
 		break;
 	case div:
-		value = (void*)((intptr_t) lvalue / (intptr_t) rvalue);
-		printf("%d / %d = %d\n", (intptr_t) lvalue, (intptr_t) rvalue, (intptr_t) value);
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (divisao " + tipo + ") " + rvalue + ")";
 		break;
 	case gt:
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (maior " + tipo + ") " + rvalue + ")";
+		break;
 	case lt:
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (menor " + tipo + ") " + rvalue + ")";
+		break;
 	case gte:
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (maior ou igual " + tipo + ") " + rvalue + ")";
+		break;
 	case lte:
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (menor ou igual " + tipo + ") " + rvalue + ")";
+		break;
 	case eq:
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (igualdade " + tipo + ") " + rvalue + ")";
+		break;
 	case neq:
+		if(this->type == Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (desigualdade " + tipo + ") " + rvalue + ")";
+		break;
 	case _and:
+		if(this->type != Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (e logico " + tipo + ") " + rvalue + ")";
+		break;
 	case _or:
+		if(this->type != Type::booleano){
+			yyerror("ERRO SINTATICO");//TODO
+		}
+		retorno = "(" + lvalue + " (ou logico " + tipo + ") " + rvalue + ")";
 		break;
 	case assign:
-		std::string id = ((Variable*)left)->name;
-
-    	symtable->setSymbol(id, ST::Symbol(right->type, rvalue));
-		printf("var '%s' assigned with value: %d\n", ((Variable*)left)->name.c_str(), (intptr_t) rvalue);
-	 	
- 		value = rvalue;
- 		this->type = right->type;
-		
+		retorno = "Atribuicao de valor para " + lvalue + ":" + " " + rvalue;
 		break;
     } 	
     
-    return value;
+    return retorno;
 }
 
-void* Variable::computeTree() {
+std::string Variable::printTree() {
 	ST::Symbol s = symtable->getSymbol(this->name);
-	// switch(s.type) {
-	// case inteiro:
-	// 	return s.value;
-	// case real:
-	// 	return 
-	// }
+	std::string retorno = "variavel ";
+	switch(s.type) {
+	case inteiro:
+		retorno += "inteira ";
+		break;
+	case real:
+		retorno += "real ";
+		break;
+	case booleano:
+		retorno += "booleana ";
+		break;
+	}
+	retorno += this->name;
 	this->type = s.type;
-	return s.value;
+	return retorno;
 }
 
-void* Const::computeTree() {
-	return this->value;
+std::string Const::printTree() {
+	std::string retorno = "valor " + /*this->type*/this->value + " " + this->value;
+	return retorno;
 }
