@@ -143,3 +143,8 @@ std::string Const::printTree() {
 	std::string retorno = "valor " + TypeStringfier::typeStringM(this->type) + " " + this->value;
 	return retorno;
 }
+
+std::string Par::printTree() {
+	std::string retorno = "((abre parenteses) " + this->content->printTree() + " (fecha parenteses))";
+	return retorno;
+}

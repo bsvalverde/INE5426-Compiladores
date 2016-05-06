@@ -70,6 +70,7 @@ cmd 	: decl T_ENDL
 
 decl	: T_DINT arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
+			bool isArr = $2 == NULL;
 			while(var != NULL) {
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::inteiro);
@@ -80,6 +81,7 @@ decl	: T_DINT arr T_COLON listvar {
 		}
 		| T_DREAL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
+			bool isArr = $2 == NULL;
 			while(var != NULL) {
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::real);
@@ -90,6 +92,7 @@ decl	: T_DINT arr T_COLON listvar {
 		}
 		| T_DBOOL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
+			bool isArr = $2 == NULL;
 			while(var != NULL) {
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::booleano);
@@ -103,7 +106,7 @@ decl	: T_DINT arr T_COLON listvar {
 arr 	: T_AARR T_INT T_FARR {
 			$$ = $2;
 		}
-		| 
+		| {}
 		;
 
 listvar	: T_ID {
@@ -176,7 +179,7 @@ expr	: T_ID {
 			$$ = new AST::UnOp(AST::_not, $2);
 		}
 		| T_APAR expr T_FPAR %prec U_PAR { 
-			$$ = $2; 
+			$$ = new AST::Par($2);
 		}
 		;
 

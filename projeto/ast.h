@@ -83,4 +83,11 @@ public:
 	std::string printTree();
 };
 
+class Par : public Node {
+public:
+	Node* content;
+	Par(Node* content) : content(content) {}
+	std::string printTree();
+};
+
 }
