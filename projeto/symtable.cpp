@@ -4,7 +4,6 @@ using namespace ST;
 
 /* SymTable */
 SymTable::SymTable() {
-	
 }
 
 void SymTable::addSymbol(std::string name) {
@@ -28,6 +27,7 @@ void SymTable::setSymbol(std::string name, Symbol newValue) {
 	if(!hasSymbol(name)) {
 		yyerror("ERRO: Variável %s não definida.\n", name.c_str());
 	} else {
+		newValue.initialized = true;
 		this->table[name] = newValue;
 	}
 }
@@ -39,6 +39,7 @@ bool SymTable::hasSymbol(std::string name) {
 /* Symbol */
 Symbol::Symbol() {
 	this->type = inteiro;
+	this->initialized = false;
 }
 
 void Symbol::setType(Type type) {
