@@ -71,7 +71,9 @@ cmd 	: decl T_ENDL
 decl	: T_DINT arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				symtable->getSymbol(var->name)->setType(Type::inteiro);
+				ST::Symbol* s = symtable->getSymbol(var->name);
+				s->setType(Type::inteiro);
+				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
 			$$ = new AST::UnOp(AST::decl, $4);
@@ -79,7 +81,9 @@ decl	: T_DINT arr T_COLON listvar {
 		| T_DREAL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				symtable->getSymbol(var->name)->setType(Type::real);
+				ST::Symbol* s = symtable->getSymbol(var->name);
+				s->setType(Type::real);
+				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
 			$$ = new AST::UnOp(AST::decl, $4);
@@ -87,7 +91,9 @@ decl	: T_DINT arr T_COLON listvar {
 		| T_DBOOL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				symtable->getSymbol(var->name)->setType(Type::booleano);
+				ST::Symbol* s = symtable->getSymbol(var->name);
+				s->setType(Type::booleano);
+				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
 			$$ = new AST::UnOp(AST::decl, $4);
