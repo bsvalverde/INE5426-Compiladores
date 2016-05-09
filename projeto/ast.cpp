@@ -68,9 +68,9 @@ std::string BinOp::printTree() {
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
 	case assign:
-		symtable->setSymbol(((Variable*)left)->name);
-		lvalue = left->printTree();
 		rvalue = right->printTree();
+		symtable->setSymbol(((Variable*)left)->name);
+		lvalue = left->printTree();	
 		if (left->type != right->type){
 			if(left->type == Type::real && right->type == Type::inteiro)
 				rvalue += " para real";
