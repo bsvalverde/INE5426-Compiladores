@@ -81,7 +81,7 @@ decl	: T_DINT arr T_COLON listvar {
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(decl, $4);
+			$$ = new AST::DeclVar($4);
 		}
 		| T_DREAL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
@@ -92,7 +92,7 @@ decl	: T_DINT arr T_COLON listvar {
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(decl, $4);
+			$$ = new AST::DeclVar($4);
 		}
 		| T_DBOOL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
@@ -103,7 +103,7 @@ decl	: T_DINT arr T_COLON listvar {
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
-			$$ = new AST::UnOp(decl, $4);
+			$$ = new AST::DeclVar($4);
 		}
 		;
 

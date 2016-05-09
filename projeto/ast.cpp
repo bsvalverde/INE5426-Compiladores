@@ -13,78 +13,71 @@ std::string Block::printTree() {
 
 std::string UnOp::printTree() {
 	std::string retorno = "";
-	switch(op){
-		case decl:
-		{
-			retorno = "Declaracao de variavel " + Stringfier::typeStringF(next->type) + ": ";
-			Variable* next = (Variable *)this->next;
-			std::string vars = next->name;
-			next = (Variable *)next->next;
-			while(next != NULL){
-				vars = next->name + ", " + vars;
-				next = (Variable *)next->next;
-			}
-			retorno += vars;
-			break;
-		}
-		case _not: case neg:
-		retorno = next->printTree() + ")";
-		retorno = "((" + Stringfier::unOpString(op) + " " + Stringfier::typeStringM(next->type) + ") " + retorno;
-		this->type = next->type;
-		break;
-	}
+	retorno = next->printTree() + ")";
+	retorno = "((" + Stringfier::unOpString(op) + " " + Stringfier::typeStringM(next->type) + ") " + retorno;
+	this->type = next->type;
 	return retorno;
 }
 
 std::string BinOp::printTree() {
-	std::string retorno;
+	std::string retorno, lvalue, rvalue;
 	retorno = "";
-	// if (left->type != right->type){
-	// 	if(left->type == Type::booleano || right->type == Type::booleano){
-	// 		yyerror("ERRO SEMANTICO\n");//TODO
-	// 	} else {
-	// 		std::string *mudar = &lvalue;
-	// 			if(right->type == Type::inteiro){
-	// 				mudar = &rvalue;
-	// 				right->type = left->type;
-	// 			}
-	// 		*mudar += " para real";
-	// 	}
-	// }
-	this->type = right->type;
 	std::string opString = Stringfier::binOpString(op);
     switch(op){
 	case plus: case sub: case mult: case _div:
-
-		if(this->type == Type::booleano){
-			yyerror("ERRO SEMANTICO\n");//TODO
+		lvalue = left->printTree();
+		rvalue = right->printTree();
+		if(left->type == Type::booleano || right->type == Type::booleano){
+			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
+			this->type = Type::inteiro;
+		} else if (left->type != right->type){
+			std::string* muda = &lvalue;
+			if(right->type == Type::inteiro){
+				muda = &rvalue;
+				right->type = Type::real;
+			}
+			*muda += " para real";
 		}
-		retorno = "(" + left->printTree() + " (" + opString + " " + Stringfier::typeStringF(this->type) + ") " + right->printTree() + ")";
+		this->type = right->type;
+		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringF(this->type) + ") " + rvalue + ")";
 		break;
 	case gt: case lt: case gte: case lte: case eq: case neq:
-		// if(left->type != booleano) {
-		// 	yyerror(("Erro semantico: operacao " + opString + " espera booleano do lado esquerdo da atribuicao.\n").c_str());
-		// }
+		lvalue = left->printTree();
+		rvalue = right->printTree();
 		if(left->type == Type::booleano || right->type == Type::booleano){
-			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano").c_str());//TODO
+			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
+		} else if(left->type != right->type){
+			std::string* muda = &lvalue;
+			if(right->type == Type::inteiro)
+				muda = &rvalue;
+			*muda += " para real";
 		}
-		retorno = "(" + left->printTree() + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + right->printTree() + ")";
+		this->type = Type::booleano;
+		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
 	case _and: case _or:
-		if(this->type != Type::booleano){
-			yyerror("ERRO SEMANTICO");//TODO
+		lvalue = left->printTree();
+		rvalue = right->printTree();
+		if(!(left->type == Type::booleano)){
+			yyerror(("Erro semantico: operacao " + opString + " espera booleano mas recebeu" + Stringfier::typeStringF(left->type) + ".").c_str());
 		}
-		retorno = "(" + left->printTree() + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + right->printTree() + ")";
+		if(!(right->type == Type::booleano)){
+			yyerror(("Erro semantico: operacao " + opString + " espera booleano mas recebeu" + Stringfier::typeStringF(right->type) + ".").c_str());
+		}
+		this->type = Type::booleano;
+		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
 	case assign:
 		symtable->setSymbol(((Variable*)left)->name);
+		lvalue = left->printTree();
+		rvalue = right->printTree();
 		if (left->type != right->type){
 			yyerror(("Erro semantico: operacao " + opString + " espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
 		}
-		retorno = "Atribuicao de valor para " + left->printTree() + ":" + " " + right->printTree();
+		this->type = left->type;
+		retorno = "Atribuicao de valor para " + lvalue + ":" + " " + rvalue;
 		break;
-    } 	
-    
+    }
     return retorno;
 }
 
@@ -97,6 +90,20 @@ std::string Variable::printTree() {
 
 std::string Const::printTree() {
 	std::string retorno = "valor " + Stringfier::typeStringM(this->type) + " " + this->value;
+	return retorno;
+}
+
+std::string DeclVar::printTree() {
+	std::string retorno = "";
+	retorno = "Declaracao de variavel " + Stringfier::typeStringF(next->type) + ": ";
+	Variable* next = (Variable *)this->next;
+	std::string vars = next->name;
+	next = (Variable *)next->next;
+	while(next != NULL){
+		vars = next->name + ", " + vars;
+		next = (Variable *)next->next;
+	}
+	retorno += vars;
 	return retorno;
 }
 

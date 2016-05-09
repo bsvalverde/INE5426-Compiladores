@@ -30,7 +30,6 @@ class UnOp : public Node {
 public:
 	UnOperation op;
 	Node* next;
-
 	UnOp(UnOperation op, Node* next) : op(op), next(next) {}
 	std::string printTree();
 };
@@ -40,7 +39,6 @@ public:
 	BinOperation op;
 	Node* left;
 	Node* right;
-
 	BinOp(Node* left, BinOperation op, Node* right) : left(left), op(op), right(right) {}
 	std::string printTree();
 };
@@ -59,6 +57,13 @@ public:
 	Const(std::string value, Type type) : value(value) {
 		this->type = type;
 	}
+	std::string printTree();
+};
+
+class DeclVar : public Node {
+public:
+	Node* next;
+	DeclVar(Node* next) : next(next) {}
 	std::string printTree();
 };
 

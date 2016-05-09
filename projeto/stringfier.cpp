@@ -38,7 +38,6 @@ std::string Stringfier::binOpString(BinOperation op) {
 
 std::string Stringfier::unOpString(UnOperation op) {
 	switch(op) {
-		case decl: return "declaracao";
 		case _not: return "nao";
 		case neg: return "menos unario";
 	}

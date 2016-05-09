@@ -24,7 +24,6 @@ enum BinOperation {
 };
 
 enum UnOperation {
-	decl,
 	_not,
 	neg
 };
