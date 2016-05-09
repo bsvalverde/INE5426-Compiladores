@@ -1,8 +1,10 @@
-int: i, j;
-real: a;
-bool: comp;
-a := 10.0 + .57 - 2.;
-i := -2;
-j := i * ( 3 / 5 );
-comp := a > j;
-comp := TRUE;
+
+int a;
+int: int;
+bool: A;
+bool: true;
+real:= 2.0;
+
+    var:= 1.0 * myvar;
+    true:= FALSE + 3;
+    true:= true OR 4.0;

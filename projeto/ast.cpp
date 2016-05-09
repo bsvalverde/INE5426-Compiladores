@@ -72,7 +72,10 @@ std::string BinOp::printTree() {
 		lvalue = left->printTree();
 		rvalue = right->printTree();
 		if (left->type != right->type){
-			yyerror(("Erro semantico: operacao " + opString + " espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
+			if(left->type == Type::real && right->type == Type::inteiro)
+				rvalue += " para real";
+			else
+				yyerror(("Erro semantico: operacao " + opString + " espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
 		}
 		this->type = left->type;
 		retorno = "Atribuicao de valor para " + lvalue + ":" + " " + rvalue;
