@@ -81,4 +81,5 @@ void yyerror(const char *s, ...){
     va_start(ap, s);
     std::fprintf(stderr, "[Linha %d] ", yylineno);
     std::vfprintf(stderr, s, ap);
+    std::fprintf(stderr, "\n");
 }

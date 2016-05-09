@@ -15,7 +15,8 @@ public:
 	SymTable();
 	void addSymbol(std::string name);
 	Symbol* getSymbol(std::string name);
-	void setSymbol(std::string name, Symbol* newValue);
+	Symbol* useSymbol(std::string name);
+	void setSymbol(std::string name);
 
 private:
 	bool hasSymbol(std::string name);
