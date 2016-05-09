@@ -31,7 +31,9 @@ Symbol* SymTable::useSymbol(std::string name) {
 }
 
 void SymTable::setSymbol(std::string name) {
-	this->table[name]->initialized = true;
+	Symbol *s = this->table[name];
+	if(s != NULL)
+		s->initialized = true;
 }
 
 bool SymTable::hasSymbol(std::string name) {

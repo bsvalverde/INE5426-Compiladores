@@ -32,7 +32,6 @@ std::string Stringfier::binOpString(BinOperation op) {
 		case neq: return "diferente";
 		case _and: return "e";
 		case _or: return "ou";
-		case assign: return "atribuicao";
 	}
 }
 

@@ -60,6 +60,14 @@ public:
 	std::string printTree();
 };
 
+class AssignVar : public Node {
+public:
+	Node* left;
+	Node* right;
+	AssignVar(Node* left, Node* right) : left(left), right(right) {}
+	std::string printTree();
+};
+
 class DeclVar : public Node {
 public:
 	Node* next;

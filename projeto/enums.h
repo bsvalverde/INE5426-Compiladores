@@ -19,8 +19,7 @@ enum BinOperation {
 	eq,
 	neq,
 	_and,
-	_or,
-	assign
+	_or
 };
 
 enum UnOperation {
