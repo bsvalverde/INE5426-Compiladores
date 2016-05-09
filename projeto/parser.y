@@ -11,6 +11,8 @@ extern int yylex();
 extern void yyerror(const char* s, ...);	
 %}
 
+%define parse.trace
+
 %union {
 	const char* inteiro;
 	const char* real;
@@ -47,6 +49,7 @@ extern void yyerror(const char* s, ...);
 %left T_MULT T_DIV
 %right U_NEG T_NOT
 %left U_PAR
+%nonassoc error
 
 %start program
 
@@ -66,6 +69,7 @@ cmds	: cmd {
 
 cmd 	: decl T_ENDL
 		| attr T_ENDL
+        | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
 decl	: T_DINT arr T_COLON listvar { 
