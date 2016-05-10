@@ -63,6 +63,10 @@ bool "TRUE"|"FALSE"
 
 
  /* Misc */
+"def"	{return T_DEF;}
+"end"	{return T_END;}
+"fun"	{return T_FUN;}
+"return"	{return T_RET;}
 {id}	{
 	yylval.id = strdup(yytext);
 	return T_ID;
