@@ -47,9 +47,18 @@ class Variable : public Node {
 public:
 	std::string name;
 	Node* next;
-	Variable(std::string name, Node* next) : name(name), next(next) {}
+	int size;
+	Variable(std::string name, Node* next) : name(name), next(next) { this->size = -1; }
 	std::string printTree();
 };
+
+// class VariableArr : public Variable {
+// public:
+// 	int size;
+// 	VariableArr(std::string name, Node* next, int size) : Variable(name, next) { this->size = size; }
+// 	VariableArr(Variable* var, int size) : Variable(var->name, var->next) { this->size = size; }
+// 	std::string printTree();
+// };
 
 class Const : public Node {
 public:
@@ -64,7 +73,8 @@ class AssignVar : public Node {
 public:
 	Node* left;
 	Node* right;
-	AssignVar(Node* left, Node* right) : left(left), right(right) {}
+	Node* arrExpr;
+	AssignVar(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {}
 	std::string printTree();
 };
 

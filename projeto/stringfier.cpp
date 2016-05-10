@@ -1,5 +1,13 @@
 #include "stringfier.h"
 
+std::string Stringfier::typeString(Type type, bool isArr) {
+	if(isArr) {
+		return "arranjo " + typeStringM(type);
+	} else {
+		return "variavel " + typeStringF(type);
+	}
+}
+
 std::string Stringfier::typeStringM(Type type) {
 	switch(type) {
 		case desconhecido: return "desconhecido";

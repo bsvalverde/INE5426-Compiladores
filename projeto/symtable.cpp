@@ -11,6 +11,7 @@ void SymTable::addSymbol(std::string name) {
 		yyerror("semantico: variavel %s sofrendo redefinicao.", name.c_str());
 	} else {
 		this->table[name] = new Symbol();
+		this->table[name]->initialized = false;
 	}
 }
 

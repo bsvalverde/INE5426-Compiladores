@@ -75,9 +75,17 @@ std::string BinOp::printTree() {
 std::string Variable::printTree() {
 	ST::Symbol* s = symtable->useSymbol(this->name);
 	this->type = s->type;
-	std::string retorno = "variavel " +	Stringfier::typeStringF(this->type) + " " + this->name;
+	// std::string retorno = "variavel " +	Stringfier::typeStringF(this->type) + " " + this->name;
+	std::string retorno = Stringfier::typeString(this->type, this->size != -1) + " " + this->name;
 	return retorno;
 }
+
+// std::string VariableArr::printTree() {
+// 	ST::Symbol* s = symtable->useSymbol(this->name);
+// 	this->type = s->type;
+// 	std::string retorno = "variavel arr " +	Stringfier::typeStringF(this->type) + " " + this->name + " de tamanho " + std::to_string(this->size);
+// 	return retorno;	
+// }
 
 std::string Const::printTree() {
 	std::string retorno = "valor " + Stringfier::typeStringM(this->type) + " " + this->value;
@@ -99,15 +107,30 @@ std::string AssignVar::printTree() {
 			yyerror(("semantico: operacao atribuicao espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
 	}
 	this->type = left->type;
-	retorno = "Atribuicao de valor para " + lvalue + ":" + " " + rvalue;
+
+	retorno = "Atribuicao de valor para " + lvalue + ":";
+	bool isArr = this->arrExpr != NULL;
+	if(isArr) {
+		// this->arrExpr->size = 0;
+		retorno += "\n+indice: " + this->arrExpr->printTree() + "\n+valor: " + rvalue;
+	} else {
+		retorno += " " + rvalue;
+	}
 	return retorno;
 }
 
 std::string DeclVar::printTree() {
 	//TODO e se adicionarmos ao symtable aqui? otherwise, input: int:a,a;
 	std::string retorno = "";
-	retorno = "Declaracao de variavel " + Stringfier::typeStringF(next->type) + ": ";
+	
 	Variable* next = (Variable *)this->next;
+	bool isArr = next->size != -1;
+	retorno = "Declaracao de " + Stringfier::typeString(next->type, isArr);
+	if(isArr) {
+		retorno += " de tamanho " + std::to_string(next->size);
+	}
+	retorno += ": ";
+	
 	std::string vars = next->name;
 	next = (Variable *)next->next;
 	while(next != NULL){

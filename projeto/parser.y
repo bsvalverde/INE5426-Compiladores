@@ -39,7 +39,7 @@ extern void yyerror(const char* s, ...);
 
 //Deinição de tipos não-terminais
 %type <block> program cmds
-%type <node> cmd decl listvar attr expr
+%type <node> cmd decl listvar attr expr arrexpr
 %type <arrLen> arr
 
 //Precedencia de operadores
@@ -74,19 +74,42 @@ cmd 	: decl T_ENDL
 
 decl	: T_DINT arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
-			bool isArr = $2 == NULL;
-			while(var != NULL) {
-				ST::Symbol* s = symtable->getSymbol(var->name);
-				s->setType(Type::inteiro);
-				var->type = s->type;
-				var = (AST::Variable*) var->next;
-			}
+			bool isArr = $2 != NULL;
+			// if(isArr) {
+				// AST::VariableArr* varArr = new AST::VariableArr(var, atoi($2));
+				// while(true) {
+				// 	ST::Symbol* s = symtable->getSymbol(varArr->name);
+				// 	s->setType(Type::inteiro);
+
+				// 	varArr->type = s->type;
+				// 	std::cout << varArr->type << "LALALA" << std::endl;
+				// 	var = (AST::Variable*) var->next;
+				// 	if(var == NULL) {
+				// 		break;
+				// 	}
+				// 	varArr = new AST::VariableArr(var, atoi($2));
+				// 	var->next = varArr;
+				// }
+			// }else {
+				while(var != NULL) {
+					// if(isArr) {
+					var->size = atoi($2);
+					// }
+					ST::Symbol* s = symtable->getSymbol(var->name);
+					s->setType(Type::inteiro);
+					var->type = s->type;
+					var = (AST::Variable*) var->next;
+				}
+			// }
 			$$ = new AST::DeclVar($4);
 		}
 		| T_DREAL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
-			bool isArr = $2 == NULL;
+			bool isArr = $2 != NULL;
+
 			while(var != NULL) {
+				var->size = atoi($2);
+
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::real);
 				var->type = s->type;
@@ -96,8 +119,11 @@ decl	: T_DINT arr T_COLON listvar {
 		}
 		| T_DBOOL arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
-			bool isArr = $2 == NULL;
+			bool isArr = $2 != NULL;
+
 			while(var != NULL) {
+				var->size = atoi($2);
+
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::booleano);
 				var->type = s->type;
@@ -110,8 +136,17 @@ decl	: T_DINT arr T_COLON listvar {
 arr 	: T_AARR T_INT T_FARR {
 			$$ = $2;
 		}
-		| {}
+		| { 
+			$$ = "-1";
+		}
 		;
+
+arrexpr : T_AARR expr T_FARR {
+			$$ = $2;
+		}
+		| { 
+			$$ = NULL;
+		}
 
 listvar	: T_ID {
 			symtable->addSymbol($1);
@@ -123,13 +158,22 @@ listvar	: T_ID {
 		}
 		;
 
-attr 	: T_ID T_ATTR expr {
-			$$ = new AST::AssignVar(new AST::Variable($1, NULL), $3);
+attr 	: T_ID arrexpr T_ATTR expr {
+			AST::Variable* var = new AST::Variable($1, NULL);
+			if($2 != NULL) {
+				var->size = 0;
+			}
+			$$ = new AST::AssignVar(var, $4, $2);
 		}
 		;
 
-expr	: T_ID { 
-			$$ = new AST::Variable($1, NULL);
+expr	: //T_ID {
+		T_ID arrexpr { 
+			AST::Variable* var = new AST::Variable($1, NULL);
+			if($2 != NULL) {
+				var->size = 0;
+			}
+			$$ = var;
 		}
 		| T_INT {
 			$$ = new AST::Const($1, Type::inteiro);
