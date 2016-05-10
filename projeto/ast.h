@@ -47,8 +47,8 @@ class Variable : public Node {
 public:
 	std::string name;
 	Node* next;
-	int size;
-	Variable(std::string name, Node* next) : name(name), next(next) { this->size = -1; }
+	Node* arrExpr;
+	Variable(std::string name, Node* next) : name(name), next(next) { this->arrExpr = NULL; }
 	std::string printTree();
 };
 

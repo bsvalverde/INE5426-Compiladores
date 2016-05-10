@@ -19,7 +19,6 @@ extern void yyerror(const char* s, ...);
 	const char* booleano;
 	const char* id;
 
-	const char* arrLen;
 	AST::Node* node;
 	AST::Block* block;
 }
@@ -39,8 +38,7 @@ extern void yyerror(const char* s, ...);
 
 //Deinição de tipos não-terminais
 %type <block> program cmds
-%type <node> cmd decl listvar attr expr arrexpr
-%type <arrLen> arr
+%type <node> cmd decl listvar attr expr arr arrexpr
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -92,9 +90,7 @@ decl	: T_DINT arr T_COLON listvar {
 				// }
 			// }else {
 				while(var != NULL) {
-					// if(isArr) {
-					var->size = atoi($2);
-					// }
+					var->arrExpr = $2;
 					ST::Symbol* s = symtable->getSymbol(var->name);
 					s->setType(Type::inteiro);
 					var->type = s->type;
@@ -108,8 +104,7 @@ decl	: T_DINT arr T_COLON listvar {
 			bool isArr = $2 != NULL;
 
 			while(var != NULL) {
-				var->size = atoi($2);
-
+				var->arrExpr = $2;
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::real);
 				var->type = s->type;
@@ -122,8 +117,7 @@ decl	: T_DINT arr T_COLON listvar {
 			bool isArr = $2 != NULL;
 
 			while(var != NULL) {
-				var->size = atoi($2);
-
+				var->arrExpr = $2;
 				ST::Symbol* s = symtable->getSymbol(var->name);
 				s->setType(Type::booleano);
 				var->type = s->type;
@@ -134,10 +128,10 @@ decl	: T_DINT arr T_COLON listvar {
 		;
 
 arr 	: T_AARR T_INT T_FARR {
-			$$ = $2;
+			$$ = new AST::Const($2, Type::inteiro);
 		}
 		| { 
-			$$ = "-1";
+			$$ = NULL;
 		}
 		;
 
@@ -160,9 +154,7 @@ listvar	: T_ID {
 
 attr 	: T_ID arrexpr T_ATTR expr {
 			AST::Variable* var = new AST::Variable($1, NULL);
-			if($2 != NULL) {
-				var->size = 0;
-			}
+			var->arrExpr = $2;
 			$$ = new AST::AssignVar(var, $4, $2);
 		}
 		;
@@ -170,9 +162,7 @@ attr 	: T_ID arrexpr T_ATTR expr {
 expr	: //T_ID {
 		T_ID arrexpr { 
 			AST::Variable* var = new AST::Variable($1, NULL);
-			if($2 != NULL) {
-				var->size = 0;
-			}
+			var->arrExpr = $2;
 			$$ = var;
 		}
 		| T_INT {

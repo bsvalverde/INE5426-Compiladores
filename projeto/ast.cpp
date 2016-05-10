@@ -74,7 +74,10 @@ std::string Variable::printTree() {
 	ST::Symbol* s = symtable->useSymbol(this->name);
 	this->type = s->type;
 	// std::string retorno = "variavel " +	Stringfier::typeStringF(this->type) + " " + this->name;
-	std::string retorno = Stringfier::typeString(this->type, this->size != -1) + " " + this->name;
+	std::string retorno = Stringfier::typeString(this->type, this->arrExpr != NULL) + " " + this->name;
+	if(this->arrExpr != NULL) {
+		retorno += " {+indice: " + arrExpr->printTree() + "}";
+	}
 	return retorno;
 }
 
@@ -107,10 +110,11 @@ std::string AssignVar::printTree() {
 	this->type = left->type;
 
 	retorno = "Atribuicao de valor para " + lvalue + ":";
-	bool isArr = this->arrExpr != NULL;
+	// bool isArr = this->arrExpr != NULL;
+	bool isArr = var->arrExpr != NULL;
 	if(isArr) {
 		// this->arrExpr->size = 0;
-		retorno += "\n+indice: " + this->arrExpr->printTree() + "\n+valor: " + rvalue;
+		retorno += "\n+indice: " + var->arrExpr->printTree() + "\n+valor: " + rvalue;
 	} else {
 		retorno += " " + rvalue;
 	}
@@ -122,10 +126,10 @@ std::string DeclVar::printTree() {
 	std::string retorno = "";
 	
 	Variable* next = (Variable *)this->next;
-	bool isArr = next->size != -1;
+	bool isArr = next->arrExpr != NULL;
 	retorno = "Declaracao de " + Stringfier::typeString(next->type, isArr);
 	if(isArr) {
-		retorno += " de tamanho " + std::to_string(next->size);
+		retorno += " de tamanho " + ((Const*)(next->arrExpr))->value;
 	}
 	retorno += ": ";
 	
