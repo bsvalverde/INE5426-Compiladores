@@ -124,7 +124,7 @@ listvar	: T_ID {
 		;
 
 attr 	: T_ID T_ATTR expr {
-			$$ = new AST::AssignVar(new AST::Variable($1, NULL), $3); 
+			$$ = new AST::AssignVar(new AST::Variable($1, NULL), $3);
 		}
 		;
 

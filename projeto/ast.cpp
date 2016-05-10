@@ -41,30 +41,29 @@ std::string BinOp::printTree() {
     switch(op){
 	case plus: case sub: case mult: case _div:
 		if(left->type == Type::booleano || right->type == Type::booleano){
-			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
+			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
 			this->type = Type::inteiro;
 		} else if(left->type == Type::desconhecido || right->type == Type::desconhecido){
-			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu desconhecido.").c_str());
+			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu desconhecido.").c_str());
 			this->type = Type::inteiro;
 		}
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringF(this->type) + ") " + rvalue + ")";
 		break;
 	case gt: case lt: case gte: case lte: case eq: case neq:
 		if(left->type == Type::booleano || right->type == Type::booleano){
-			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
-			this->type = Type::booleano;
+			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
 		} else if(left->type == Type::desconhecido || right->type == Type::desconhecido){
-			yyerror(("Erro semantico: operacao " + opString + " espera inteiro ou real mas recebeu desconhecido.").c_str());
-			this->type = Type::booleano;
+			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu desconhecido.").c_str());
 		}
+		this->type = Type::booleano;
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
 	case _and: case _or:
 		if(!(left->type == Type::booleano)){
-			yyerror(("Erro semantico: operacao " + opString + " espera booleano mas recebeu" + Stringfier::typeStringF(left->type) + ".").c_str());
+			yyerror(("semantico: operacao " + opString + " espera booleano mas recebeu " + Stringfier::typeStringF(left->type) + ".").c_str());
 		}
 		if(!(right->type == Type::booleano)){
-			yyerror(("Erro semantico: operacao " + opString + " espera booleano mas recebeu" + Stringfier::typeStringF(right->type) + ".").c_str());
+			yyerror(("semantico: operacao " + opString + " espera booleano mas recebeu " + Stringfier::typeStringF(right->type) + ".").c_str());
 		}
 		this->type = Type::booleano;
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
@@ -89,13 +88,15 @@ std::string AssignVar::printTree() {
 	std::string retorno, lvalue, rvalue;
 	retorno = "";
 	rvalue = right->printTree();
-	symtable->setSymbol(((Variable*)left)->name);
-	lvalue = left->printTree();	
+	Variable *var = (Variable *)left;
+	symtable->setSymbol(var->name);
+	lvalue = left->printTree();
+	//TODO tirar duvida com prof sobre esse erro
 	if (left->type != right->type){
 		if(left->type == Type::real && right->type == Type::inteiro)
 			rvalue += " para real";
 		else
-			yyerror(("Erro semantico: operacao atribuicao espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
+			yyerror(("semantico: operacao atribuicao espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
 	}
 	this->type = left->type;
 	retorno = "Atribuicao de valor para " + lvalue + ":" + " " + rvalue;
@@ -103,6 +104,7 @@ std::string AssignVar::printTree() {
 }
 
 std::string DeclVar::printTree() {
+	//TODO e se adicionarmos ao symtable aqui? otherwise, input: int:a,a;
 	std::string retorno = "";
 	retorno = "Declaracao de variavel " + Stringfier::typeStringF(next->type) + ": ";
 	Variable* next = (Variable *)this->next;

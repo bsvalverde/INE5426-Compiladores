@@ -8,7 +8,7 @@ SymTable::SymTable() {
 
 void SymTable::addSymbol(std::string name) {
 	if(hasSymbol(name)) {
-		yyerror("Erro semantico: redefinicao da varivel %s.", name.c_str());
+		yyerror("semantico: variavel %s sofrendo redefinicao.", name.c_str());
 	} else {
 		this->table[name] = new Symbol();
 	}
@@ -16,7 +16,7 @@ void SymTable::addSymbol(std::string name) {
 
 Symbol* SymTable::getSymbol(std::string name) {
 	if(!hasSymbol(name)) {
-		yyerror("Erro semantico: variavel %s nao declarada.", name.c_str());
+		yyerror("semantico: variavel %s sem declaracao.", name.c_str());
 		return new Symbol();
 	} else {
 		return this->table[name];
@@ -26,14 +26,14 @@ Symbol* SymTable::getSymbol(std::string name) {
 Symbol* SymTable::useSymbol(std::string name) {
 	Symbol* retorno = getSymbol(name);
 	if(!retorno->initialized)
-		yyerror("Erro semantico: variavel %s nao inicializada.", name.c_str());
+		yyerror("semantico: variavel %s nao inicializada.", name.c_str());
 	return retorno;
 }
 
 void SymTable::setSymbol(std::string name) {
-	Symbol *s = this->table[name];
-	if(s != NULL)
-		s->initialized = true;
+	if(hasSymbol(name)){
+		this->table[name]->initialized = true;
+	}
 }
 
 bool SymTable::hasSymbol(std::string name) {
@@ -43,7 +43,7 @@ bool SymTable::hasSymbol(std::string name) {
 /* Symbol */
 Symbol::Symbol() {
 	this->type = desconhecido;
-	this->initialized = false;
+	this->initialized = true;
 }
 
 void Symbol::setType(Type type) {
