@@ -33,8 +33,6 @@ std::string BinOp::printTree() {
 		} else if (left->type == Type::real && right->type == Type::inteiro){
 			rvalue += " para real";
 			right->type = Type::real;
-		} else {
-			this->type = Type::desconhecido;
 		}
 	}
 	this->type = left->type;
