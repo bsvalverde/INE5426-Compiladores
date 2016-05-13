@@ -73,20 +73,12 @@ std::string BinOp::printTree() {
 std::string Variable::printTree() {
 	ST::Symbol* s = symtable->useSymbol(this->name);
 	this->type = s->type;
-	// std::string retorno = "variavel " +	Stringfier::typeStringF(this->type) + " " + this->name;
 	std::string retorno = Stringfier::typeString(this->type, this->arrExpr != NULL) + " " + this->name;
 	if(this->arrExpr != NULL) {
 		retorno += " {+indice: " + arrExpr->printTree() + "}";
 	}
 	return retorno;
 }
-
-// std::string VariableArr::printTree() {
-// 	ST::Symbol* s = symtable->useSymbol(this->name);
-// 	this->type = s->type;
-// 	std::string retorno = "variavel arr " +	Stringfier::typeStringF(this->type) + " " + this->name + " de tamanho " + std::to_string(this->size);
-// 	return retorno;	
-// }
 
 std::string Const::printTree() {
 	std::string retorno = "valor " + Stringfier::typeStringM(this->type) + " " + this->value;
@@ -100,7 +92,7 @@ std::string AssignVar::printTree() {
 	Variable *var = (Variable *)left;
 	symtable->setSymbol(var->name);
 	lvalue = left->printTree();
-	//TODO tirar duvida com prof sobre esse erro
+
 	if (left->type != right->type){
 		if(left->type == Type::real && right->type == Type::inteiro)
 			rvalue += " para real";
@@ -109,20 +101,10 @@ std::string AssignVar::printTree() {
 	}
 	this->type = left->type;
 
-	retorno = "Atribuicao de valor para " + lvalue + ": " + rvalue;
-	// // bool isArr = this->arrExpr != NULL;
-	// bool isArr = var->arrExpr != NULL;
-	// if(isArr) {
-	// 	// this->arrExpr->size = 0;
-	// 	retorno += "indice: " + var->arrExpr->printTree() + "\n+valor: " + rvalue;
-	// } else {
-	// 	retorno += " " + rvalue;
-	// }
-	return retorno;
+	return "Atribuicao de valor para " + lvalue + ": " + rvalue;;
 }
 
 std::string DeclVar::printTree() {
-	//TODO e se adicionarmos ao symtable aqui? otherwise, input: int:a,a;
 	std::string retorno = "";
 	
 	Variable* next = (Variable *)this->next;
