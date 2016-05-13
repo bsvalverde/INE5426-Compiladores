@@ -130,3 +130,7 @@ std::string Par::printTree() {
 	this->type = this->content->type;
 	return retorno;
 }
+
+std::string Return::printTree() {
+	return "Retorno de funcao: " + this->expr->printTree();
+}

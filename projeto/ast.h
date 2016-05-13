@@ -52,14 +52,6 @@ public:
 	std::string printTree();
 };
 
-// class VariableArr : public Variable {
-// public:
-// 	int size;
-// 	VariableArr(std::string name, Node* next, int size) : Variable(name, next) { this->size = size; }
-// 	VariableArr(Variable* var, int size) : Variable(var->name, var->next) { this->size = size; }
-// 	std::string printTree();
-// };
-
 class Const : public Node {
 public:
 	std::string value;
@@ -89,6 +81,39 @@ class Par : public Node {
 public:
 	Node* content;
 	Par(Node* content) : content(content) {}
+	std::string printTree();
+};
+
+class Function : public Node {
+public:
+	std::string name;
+	Block* code;
+	Function(std::string name) : name(name) {}
+	std::string printTree();
+};
+
+class DeclFunc : public Node {
+public:
+	//TODO
+	Node* left;
+	Node* right;
+	Node* arrExpr;
+	AssignVar(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {}
+	std::string printTree();
+};
+
+class DefFunc : public Node {
+public:
+	//TODO
+	Node* next;
+	DeclVar(Node* next) : next(next) {}
+	std::string printTree();
+};
+
+class Return : public Node {
+public:
+	Node* expr;
+	Return(Node* expr) : expr(expr) {}
 	std::string printTree();
 };
 

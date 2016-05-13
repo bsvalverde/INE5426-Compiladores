@@ -2,10 +2,12 @@
 #include <string>
 #include "ast.h"
 #include "symtable.h"
+#include "funtable.h"
 #include "enums.h"
 
 AST::Block* root;
 ST::SymTable* symtable = new ST::SymTable();
+FT::FunTable* funtable = new FT::FunTable();
 
 extern int yylex();
 extern void yyerror(const char* s, ...);	
@@ -21,6 +23,7 @@ extern void yyerror(const char* s, ...);
 
 	Type typeEnum;
 	BinOperation opEnum;
+	std::vector<Symbol*> parameters;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -42,9 +45,10 @@ extern void yyerror(const char* s, ...);
 
 //Deinição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun funsig params 
+%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun funsig 
 %type <typeEnum> type
 %type <opEnum> op
+%type <parameters> params
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -86,9 +90,11 @@ funcmds : funcmd {
 		}
 		;
 
-funcmd 	: decl T_ENDL { $$ = NULL; }
-		| attr T_ENDL { $$ = NULL; }
-		| T_RET expr T_ENDL { $$ = NULL; }
+funcmd 	: decl T_ENDL
+		| attr T_ENDL
+		| T_RET expr T_ENDL {
+			$$ = new AST::Return($2);
+		}
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
@@ -172,11 +178,18 @@ op 		: T_PLUS { $$ = BinOperation::plus; }
 		;
 
 
-fun 	: T_DECL funsig T_ENDL { $$ = NULL; }
-		| T_DEF funsig funcmds T_END T_DEF { $$ = NULL; }
+fun 	: T_DECL funsig T_ENDL { //aqui nodo declvar
+	$$ = NULL; }
+		| T_DEF funsig funcmds T_END T_DEF { //aqui nodo defvar que analisa semanticamente funcmds
+			$$ = NULL; }
 		;
 
-funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR { $$ = NULL; }
+funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR {
+			Function* fun = new FT::Function($2, $6);
+			funtable->addFunction($4, fun);
+			//retorna nodo function
+			$$ = NULL; 
+		}
 		;
 
 const   : T_INT { $$ = new AST::Const($1, Type::inteiro); }
@@ -189,8 +202,10 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		| T_DBOOL { $$ = Type::booleano; }
 		;
 
-params	: type T_COLON T_ID { $$ = NULL; }
-		| params T_COMMA type T_COLON T_ID { $$ = NULL; }
+params	: type T_COLON T_ID { //cria um vector e para cada tid adiciona new Symbol nele
+	$$ = NULL; }
+		| params T_COMMA type T_COLON T_ID { //ja criu entao so adiciona new Symbel (se basear em cmds)
+			$$ = NULL; }
 		;
 
 %%

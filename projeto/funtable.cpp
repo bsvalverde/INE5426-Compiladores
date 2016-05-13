@@ -6,7 +6,7 @@ using namespace FT;
 FunTable::FunTable(){
 }
 
-void FunTable::addFunction(std::string name, std::list<ST::Symbol>){
+void FunTable::addFunction(std::string name, Function* newFunction){
 
 }
 
