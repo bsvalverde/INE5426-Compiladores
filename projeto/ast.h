@@ -84,11 +84,11 @@ public:
 	std::string printTree();
 };
 
-class Function : public Node {
+class FuncNode : public Node {
 public:
 	std::string name;
 	Block* code;
-	Function(std::string name) : name(name) {}
+	FuncNode(std::string name) : name(name) {}
 	std::string printTree();
 };
 
@@ -98,7 +98,7 @@ public:
 	Node* left;
 	Node* right;
 	Node* arrExpr;
-	AssignVar(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {}
+	DeclFunc(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {}
 	std::string printTree();
 };
 
@@ -106,7 +106,7 @@ class DefFunc : public Node {
 public:
 	//TODO
 	Node* next;
-	DeclVar(Node* next) : next(next) {}
+	DefFunc(Node* next) : next(next) {}
 	std::string printTree();
 };
 

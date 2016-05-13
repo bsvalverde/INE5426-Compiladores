@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ast.h"
 #include "symtable.h"
+#include "funtable.h"
 
 extern AST::Block* root; //set on Bison file
 extern int yyparse();

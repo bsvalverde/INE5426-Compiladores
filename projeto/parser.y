@@ -23,7 +23,8 @@ extern void yyerror(const char* s, ...);
 
 	Type typeEnum;
 	BinOperation opEnum;
-	std::vector<Symbol*> parameters;
+	std::vector<ST::Symbol*> parameters;
+	//int parameters;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -185,7 +186,7 @@ fun 	: T_DECL funsig T_ENDL { //aqui nodo declvar
 		;
 
 funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR {
-			Function* fun = new FT::Function($2, $6);
+			FT::Function* fun = new FT::Function($2, $6);
 			funtable->addFunction($4, fun);
 			//retorna nodo function
 			$$ = NULL; 
