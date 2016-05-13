@@ -20,6 +20,7 @@ extern void yyerror(const char* s, ...);
 	const char* id;
 
 	Type typeEnum;
+	BinOperation opEnum;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -41,8 +42,9 @@ extern void yyerror(const char* s, ...);
 
 //Deinição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr arr arrexpr fun funsig params 
+%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun funsig params 
 %type <typeEnum> type
+%type <opEnum> op
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -135,56 +137,14 @@ attr 	: T_ID arrexpr T_ATTR expr {
 		}
 		;
 
-expr	: //T_ID {
-		T_ID arrexpr { 
+expr	: const 
+		| T_ID arrexpr { 
 			AST::Variable* var = new AST::Variable($1, NULL);
 			var->arrExpr = $2;
 			$$ = var;
 		}
-		| T_INT {
-			$$ = new AST::Const($1, Type::inteiro);
-		}
-		| T_REAL {
-			$$ = new AST::Const($1, Type::real);
-		}
-		| T_BOOL {
-			$$ = new AST::Const($1, Type::booleano);
-		}
-		| expr T_PLUS expr {
-			$$ = new AST::BinOp($1, plus, $3);
-		}
-		| expr T_SUB expr {
-			$$ = new AST::BinOp($1, sub, $3);
-		}
-		| expr T_MULT expr {
-			$$ = new AST::BinOp($1, mult, $3);
-		}
-		| expr T_DIV expr {
-			$$ = new AST::BinOp($1, _div, $3);
-		}
-		| expr T_EQ expr {
-			$$ = new AST::BinOp($1, eq, $3);
-		}
-		| expr T_NEQ expr {
-			$$ = new AST::BinOp($1, neq, $3);
-		}
-		| expr T_LT expr {
-			$$ = new AST::BinOp($1, lt, $3);
-		}
-		| expr T_GT expr {
-			$$ = new AST::BinOp($1, gt, $3);
-		}
-		| expr T_LTE expr {
-			$$ = new AST::BinOp($1, lte, $3);
-		}
-		| expr T_GTE expr {
-			$$ = new AST::BinOp($1, gte, $3);
-		}
-		| expr T_AND expr {
-			$$ = new AST::BinOp($1, _and, $3);
-		}
-		| expr T_OR expr { 
-			$$ = new AST::BinOp($1, _or, $3);
+		| expr op expr {
+			$$ = new AST::BinOp($1, $2, $3);
 		}
 		| T_SUB expr %prec U_NEG { 
 			$$ = new AST::UnOp(neg, $2);
@@ -197,11 +157,31 @@ expr	: //T_ID {
 		}
 		;
 
+op 		: T_PLUS { $$ = BinOperation::plus; }
+		| T_SUB { $$ = BinOperation::sub; }
+		| T_MULT { $$ = BinOperation::mult; }
+		| T_DIV { $$ = BinOperation::_div; }
+		| T_EQ { $$ = BinOperation::eq; }
+		| T_NEQ { $$ = BinOperation::neq; }
+		| T_LT { $$ = BinOperation::lt; }
+		| T_GT { $$ = BinOperation::gt; }
+		| T_LTE { $$ = BinOperation::lte; }
+		| T_GTE { $$ = BinOperation::gte; }
+		| T_AND { $$ = BinOperation::_and; }
+		| T_OR { $$ = BinOperation::_or; }
+		;
+
+
 fun 	: T_DECL funsig T_ENDL { $$ = NULL; }
 		| T_DEF funsig funcmds T_END T_DEF { $$ = NULL; }
 		;
 
 funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR { $$ = NULL; }
+		;
+
+const   : T_INT { $$ = new AST::Const($1, Type::inteiro); }
+		| T_REAL { $$ = new AST::Const($1, Type::real); }
+		| T_BOOL { $$ = new AST::Const($1, Type::booleano); }
 		;
 
 type 	: T_DINT { $$ = Type::inteiro; }
