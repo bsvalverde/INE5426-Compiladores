@@ -109,15 +109,15 @@ std::string AssignVar::printTree() {
 	}
 	this->type = left->type;
 
-	retorno = "Atribuicao de valor para " + lvalue + ":";
-	// bool isArr = this->arrExpr != NULL;
-	bool isArr = var->arrExpr != NULL;
-	if(isArr) {
-		// this->arrExpr->size = 0;
-		retorno += "\n+indice: " + var->arrExpr->printTree() + "\n+valor: " + rvalue;
-	} else {
-		retorno += " " + rvalue;
-	}
+	retorno = "Atribuicao de valor para " + lvalue + ": " + rvalue;
+	// // bool isArr = this->arrExpr != NULL;
+	// bool isArr = var->arrExpr != NULL;
+	// if(isArr) {
+	// 	// this->arrExpr->size = 0;
+	// 	retorno += "indice: " + var->arrExpr->printTree() + "\n+valor: " + rvalue;
+	// } else {
+	// 	retorno += " " + rvalue;
+	// }
 	return retorno;
 }
 
