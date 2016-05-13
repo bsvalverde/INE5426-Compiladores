@@ -23,8 +23,8 @@ extern void yyerror(const char* s, ...);
 
 	Type typeEnum;
 	BinOperation opEnum;
-	std::vector<ST::Symbol*> parameters;
-	//int parameters;
+	//std::vector<ST::Symbol*> parameters;
+	int parameters;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -44,7 +44,7 @@ extern void yyerror(const char* s, ...);
 %token T_COLON T_ENDL T_COMMA
 %token T_DEF T_DECL T_END T_FUN T_RET
 
-//Deinição de tipos não-terminais
+//Definição de tipos não-terminais
 %type <block> program cmds funcmds
 %type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun funsig 
 %type <typeEnum> type
@@ -139,7 +139,9 @@ listvar	: T_ID {
 
 attr 	: T_ID arrexpr T_ATTR expr {
 			AST::Variable* var = new AST::Variable($1, NULL);
+			var->type = symtable->getSymbol($1)->type;
 			var->arrExpr = $2;
+			symtable->setSymbol($1);
 			$$ = new AST::AssignVar(var, $4, $2);
 		}
 		;
@@ -147,6 +149,7 @@ attr 	: T_ID arrexpr T_ATTR expr {
 expr	: const 
 		| T_ID arrexpr { 
 			AST::Variable* var = new AST::Variable($1, NULL);
+			var->type = symtable->useSymbol($1)->type;
 			var->arrExpr = $2;
 			$$ = var;
 		}
@@ -186,8 +189,8 @@ fun 	: T_DECL funsig T_ENDL { //aqui nodo declvar
 		;
 
 funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR {
-			FT::Function* fun = new FT::Function($2, $6);
-			funtable->addFunction($4, fun);
+			//FT::Function* fun = new FT::Function($2, $6);
+			//funtable->addFunction($4, fun);
 			//retorna nodo function
 			$$ = NULL; 
 		}

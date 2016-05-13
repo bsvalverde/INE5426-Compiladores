@@ -78,7 +78,7 @@ bool "TRUE"|"FALSE"
 ","		{return T_COMMA;}
 
  /* Complains about every unknown character */
-.		{yyerror("lexico: simbolo desconhecido: %c.\n", *yytext);}
+.		{yyerror("lexico: simbolo desconhecido: %c.", *yytext);}
 
 %%
 

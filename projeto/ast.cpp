@@ -29,41 +29,18 @@ std::string BinOp::printTree() {
 	if (left->type != right->type){
 		if(left->type == Type::inteiro && right->type == Type::real){
 			lvalue += " para real";
-			left->type = Type::real;
 		} else if (left->type == Type::real && right->type == Type::inteiro){
 			rvalue += " para real";
-			right->type = Type::real;
 		}
 	}
-	this->type = left->type;
     switch(op){
 	case plus: case sub: case mult: case _div:
-		if(left->type == Type::booleano || right->type == Type::booleano){
-			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
-			this->type = Type::inteiro;
-		} else if(left->type == Type::desconhecido || right->type == Type::desconhecido){
-			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu desconhecido.").c_str());
-			this->type = Type::inteiro;
-		}
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringF(this->type) + ") " + rvalue + ")";
 		break;
 	case gt: case lt: case gte: case lte: case eq: case neq:
-		if(left->type == Type::booleano || right->type == Type::booleano){
-			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu booleano.").c_str());
-		} else if(left->type == Type::desconhecido || right->type == Type::desconhecido){
-			yyerror(("semantico: operacao " + opString + " espera inteiro ou real mas recebeu desconhecido.").c_str());
-		}
-		this->type = Type::booleano;
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
 	case _and: case _or:
-		if(!(left->type == Type::booleano)){
-			yyerror(("semantico: operacao " + opString + " espera booleano mas recebeu " + Stringfier::typeStringF(left->type) + ".").c_str());
-		}
-		if(!(right->type == Type::booleano)){
-			yyerror(("semantico: operacao " + opString + " espera booleano mas recebeu " + Stringfier::typeStringF(right->type) + ".").c_str());
-		}
-		this->type = Type::booleano;
 		retorno = "(" + lvalue + " (" + opString + " " + Stringfier::typeStringM(this->type) + ") " + rvalue + ")";
 		break;
     }
@@ -71,8 +48,6 @@ std::string BinOp::printTree() {
 }
 
 std::string Variable::printTree() {
-	ST::Symbol* s = symtable->useSymbol(this->name);
-	this->type = s->type;
 	std::string retorno = Stringfier::typeString(this->type, this->arrExpr != NULL) + " " + this->name;
 	if(this->arrExpr != NULL) {
 		retorno += " {+indice: " + arrExpr->printTree() + "}";
@@ -88,19 +63,11 @@ std::string Const::printTree() {
 std::string AssignVar::printTree() {
 	std::string retorno, lvalue, rvalue;
 	retorno = "";
-	rvalue = right->printTree();
-	Variable *var = (Variable *)left;
-	symtable->setSymbol(var->name);
 	lvalue = left->printTree();
-
-	if (left->type != right->type){
-		if(left->type == Type::real && right->type == Type::inteiro)
-			rvalue += " para real";
-		else
-			yyerror(("semantico: operacao atribuicao espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
+	rvalue = right->printTree();
+	if (left->type != right->type && left->type == Type::real && right->type == Type::inteiro){
+		rvalue += " para real";
 	}
-	this->type = left->type;
-
 	return "Atribuicao de valor para " + lvalue + ": " + rvalue;;
 }
 
@@ -127,7 +94,6 @@ std::string DeclVar::printTree() {
 
 std::string Par::printTree() {
 	std::string retorno = "((abre parenteses) " + this->content->printTree() + " (fecha parenteses))";
-	this->type = this->content->type;
 	return retorno;
 }
 

@@ -30,7 +30,9 @@ class UnOp : public Node {
 public:
 	UnOperation op;
 	Node* next;
-	UnOp(UnOperation op, Node* next) : op(op), next(next) {}
+	UnOp(UnOperation op, Node* next) : op(op), next(next) {
+		this->type = next->type;
+	}
 	std::string printTree();
 };
 
@@ -39,7 +41,40 @@ public:
 	BinOperation op;
 	Node* left;
 	Node* right;
-	BinOp(Node* left, BinOperation op, Node* right) : left(left), op(op), right(right) {}
+	BinOp(Node* left, BinOperation op, Node* right) : left(left), op(op), right(right) {
+		switch(op){
+			case plus: case sub: case mult: case _div:
+				this->type = Type::inteiro;
+				if((left->type == Type::real || left->type == Type::real) && (right->type == Type::inteiro || right->type == Type::real)){
+					this->type = Type::real;
+				}
+				if(left->type != Type::inteiro && left->type != Type::real){
+					yyerror(("semantico: operacao " + Stringfier::binOpString(op) + " espera inteiro ou real mas recebeu " + Stringfier::typeStringM(left->type) + ".").c_str());
+				}
+				if(right->type != Type::inteiro && right->type != Type::real){
+					yyerror(("semantico: operacao " + Stringfier::binOpString(op) + " espera inteiro ou real mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
+				}
+				break;
+			case gt: case lt: case gte: case lte: case eq: case neq:
+				if(left->type != Type::inteiro && left->type != Type::real){
+					yyerror(("semantico: operacao " + Stringfier::binOpString(op) + " espera inteiro ou real mas recebeu " + Stringfier::typeStringM(left->type) + ".").c_str());
+				}
+				if(right->type != Type::inteiro && right->type != Type::real){
+					yyerror(("semantico: operacao " + Stringfier::binOpString(op) + " espera inteiro ou real mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
+				}
+				this->type = Type::booleano;
+				break;
+			case _and: case _or:
+				if(!(left->type == Type::booleano)){
+					yyerror(("semantico: operacao " + Stringfier::binOpString(op) + " espera booleano mas recebeu " + Stringfier::typeStringM(left->type) + ".").c_str());
+				}
+				if(!(right->type == Type::booleano)){
+					yyerror(("semantico: operacao " + Stringfier::binOpString(op) + " espera booleano mas recebeu " + Stringfier::typeStringF(right->type) + ".").c_str());
+				}
+				this->type = Type::booleano;
+				break;
+		}
+	}
 	std::string printTree();
 };
 
@@ -48,7 +83,9 @@ public:
 	std::string name;
 	Node* next;
 	Node* arrExpr;
-	Variable(std::string name, Node* next) : name(name), next(next) { this->arrExpr = NULL; }
+	Variable(std::string name, Node* next) : name(name), next(next) {
+		this->arrExpr = NULL;
+	}
 	std::string printTree();
 };
 
@@ -66,7 +103,12 @@ public:
 	Node* left;
 	Node* right;
 	Node* arrExpr;
-	AssignVar(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {}
+	AssignVar(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {
+		this->type = left->type;
+		if(left->type != right->type && (left->type != Type::real || right->type != Type::inteiro)){
+			yyerror(("semantico: operacao atribuicao espera " + Stringfier::typeStringM(left->type) + " mas recebeu " + Stringfier::typeStringM(right->type) + ".").c_str());
+		}
+	}
 	std::string printTree();
 };
 
@@ -80,7 +122,9 @@ public:
 class Par : public Node {
 public:
 	Node* content;
-	Par(Node* content) : content(content) {}
+	Par(Node* content) : content(content) {
+		this->type = content->type;
+	}
 	std::string printTree();
 };
 
