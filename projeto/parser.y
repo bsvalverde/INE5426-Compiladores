@@ -19,6 +19,8 @@ extern void yyerror(const char* s, ...);
 	const char* booleano;
 	const char* id;
 
+	Type typeEnum;
+
 	AST::Node* node;
 	AST::Block* block;
 }
@@ -39,7 +41,8 @@ extern void yyerror(const char* s, ...);
 
 //Deinição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr arr arrexpr fun funsig params type
+%type <node> cmd funcmd decl listvar attr expr arr arrexpr fun funsig params 
+%type <typeEnum> type
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -87,39 +90,12 @@ funcmd 	: decl T_ENDL { $$ = NULL; }
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
-decl	: T_DINT arr T_COLON listvar { 
+decl	: type arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
-			bool isArr = $2 != NULL;
 			while(var != NULL) {
 				var->arrExpr = $2;
 				ST::Symbol* s = symtable->getSymbol(var->name);
-				s->setType(Type::inteiro);
-				var->type = s->type;
-				var = (AST::Variable*) var->next;
-			}
-			$$ = new AST::DeclVar($4);
-		}
-		| T_DREAL arr T_COLON listvar { 
-			AST::Variable* var = (AST::Variable*) $4;
-			bool isArr = $2 != NULL;
-
-			while(var != NULL) {
-				var->arrExpr = $2;
-				ST::Symbol* s = symtable->getSymbol(var->name);
-				s->setType(Type::real);
-				var->type = s->type;
-				var = (AST::Variable*) var->next;
-			}
-			$$ = new AST::DeclVar($4);
-		}
-		| T_DBOOL arr T_COLON listvar { 
-			AST::Variable* var = (AST::Variable*) $4;
-			bool isArr = $2 != NULL;
-
-			while(var != NULL) {
-				var->arrExpr = $2;
-				ST::Symbol* s = symtable->getSymbol(var->name);
-				s->setType(Type::booleano);
+				s->setType($1);
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
 			}
@@ -228,9 +204,9 @@ fun 	: T_DECL funsig T_ENDL { $$ = NULL; }
 funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR { $$ = NULL; }
 		;
 
-type 	: T_DINT { $$ = NULL; }
-		| T_DREAL { $$ = NULL; }
-		| T_DBOOL { $$ = NULL; }
+type 	: T_DINT { $$ = Type::inteiro; }
+		| T_DREAL { $$ = Type::real; }
+		| T_DBOOL { $$ = Type::booleano; }
 		;
 
 params	: type T_COLON T_ID { $$ = NULL; }
