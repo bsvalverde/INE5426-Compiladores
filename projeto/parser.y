@@ -35,11 +35,11 @@ extern void yyerror(const char* s, ...);
 %token T_DINT T_DREAL T_DBOOL
 %token T_NEQ T_EQ T_GTE T_GT T_LTE T_LT 
 %token T_COLON T_ENDL T_COMMA
-%token T_DEF T_END T_FUN T_RET
+%token T_DEF T_DECL T_END T_FUN T_RET
 
 //Deinição de tipos não-terminais
-%type <block> program cmds
-%type <node> cmd decl listvar attr expr arr arrexpr
+%type <block> program cmds funcmds
+%type <node> cmd funcmd decl listvar attr expr arr arrexpr fun funsig params type
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -68,36 +68,35 @@ cmds	: cmd {
 
 cmd 	: decl T_ENDL
 		| attr T_ENDL
+		| fun
+        | error T_ENDL {yyerrok; $$=NULL;}
+		;
+
+funcmds : funcmd { 
+			$$ = new AST::Block(); 
+			$$->nodes.push_back($1);
+		}
+		| funcmds funcmd {
+			if($2 != NULL) $1->nodes.push_back($2);
+		}
+		;
+
+funcmd 	: decl T_ENDL { $$ = NULL; }
+		| attr T_ENDL { $$ = NULL; }
+		| T_RET expr T_ENDL { $$ = NULL; }
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
 decl	: T_DINT arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
 			bool isArr = $2 != NULL;
-			// if(isArr) {
-				// AST::VariableArr* varArr = new AST::VariableArr(var, atoi($2));
-				// while(true) {
-				// 	ST::Symbol* s = symtable->getSymbol(varArr->name);
-				// 	s->setType(Type::inteiro);
-
-				// 	varArr->type = s->type;
-				// 	std::cout << varArr->type << "LALALA" << std::endl;
-				// 	var = (AST::Variable*) var->next;
-				// 	if(var == NULL) {
-				// 		break;
-				// 	}
-				// 	varArr = new AST::VariableArr(var, atoi($2));
-				// 	var->next = varArr;
-				// }
-			// }else {
-				while(var != NULL) {
-					var->arrExpr = $2;
-					ST::Symbol* s = symtable->getSymbol(var->name);
-					s->setType(Type::inteiro);
-					var->type = s->type;
-					var = (AST::Variable*) var->next;
-				}
-			// }
+			while(var != NULL) {
+				var->arrExpr = $2;
+				ST::Symbol* s = symtable->getSymbol(var->name);
+				s->setType(Type::inteiro);
+				var->type = s->type;
+				var = (AST::Variable*) var->next;
+			}
 			$$ = new AST::DeclVar($4);
 		}
 		| T_DREAL arr T_COLON listvar { 
@@ -220,6 +219,22 @@ expr	: //T_ID {
 		| T_APAR expr T_FPAR %prec U_PAR { 
 			$$ = new AST::Par($2);
 		}
+		;
+
+fun 	: T_DECL funsig T_ENDL { $$ = NULL; }
+		| T_DEF funsig funcmds T_END T_DEF { $$ = NULL; }
+		;
+
+funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR { $$ = NULL; }
+		;
+
+type 	: T_DINT { $$ = NULL; }
+		| T_DREAL { $$ = NULL; }
+		| T_DBOOL { $$ = NULL; }
+		;
+
+params	: type T_COLON T_ID { $$ = NULL; }
+		| params T_COMMA type T_COLON T_ID { $$ = NULL; }
 		;
 
 %%

@@ -63,6 +63,7 @@ bool "TRUE"|"FALSE"
 
  /* Tokens de Função */
 "def"	{return T_DEF;}
+"decl"	{return T_DECL;}
 "end"	{return T_END;}
 "fun"	{return T_FUN;}
 "return"	{return T_RET;}
