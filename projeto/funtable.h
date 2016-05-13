@@ -16,8 +16,8 @@ class Function;
 class FunTable {
 public:
 	FunTable();
-	void addFunction(std::string name, std::list<Symbol>);
-	void defFunction(std::string name, Node* exec);
+	void addFunction(std::string name, std::list<ST::Symbol>);
+	void defFunction(std::string name, AST::Node* exec);
 	Function* getFunction(std::string name);
 
 private:
@@ -28,8 +28,8 @@ private:
 class Function {
 public:
 	Function();
-	list<Symbol> parameters;
-	Node* execution;
+	std::list<ST::Symbol> parameters;
+	AST::Node* execution;
 };
 
 }

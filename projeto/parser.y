@@ -35,6 +35,7 @@ extern void yyerror(const char* s, ...);
 %token T_DINT T_DREAL T_DBOOL
 %token T_NEQ T_EQ T_GTE T_GT T_LTE T_LT 
 %token T_COLON T_ENDL T_COMMA
+%token T_DEF T_END T_FUN T_RET
 
 //Deinição de tipos não-terminais
 %type <block> program cmds

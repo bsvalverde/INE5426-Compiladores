@@ -3,23 +3,23 @@
 using namespace FT;
 
 /* FunTable */
-Funtable::FunTable(){
+FunTable::FunTable(){
 }
 
-void Funtable::addFunction(std::string name, std::list<Symbol>){
+void FunTable::addFunction(std::string name, std::list<ST::Symbol>){
 
 }
 
-void Funtable::defFunction(std::string name, Node* exec){
-	if(!hasFunction){
-		addFunction(name, NULL);
+void FunTable::defFunction(std::string name, AST::Node* exec){
+	if(!hasFunction(name)){
+		//addFunction(name, NULL);
 	}
 }
 
-Function* Funtable::getFunction(std::string name){
+Function* FunTable::getFunction(std::string name){
 
 }
 
-bool Funtable::hasFunction(std::string name){
+bool FunTable::hasFunction(std::string name){
 	return this->table.find(name) != this->table.end();
 }
