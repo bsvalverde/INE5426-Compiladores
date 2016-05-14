@@ -17,8 +17,9 @@ class FunTable {
 public:
 	FunTable();
 	void addFunction(std::string name, Function* newFunction);
-	void defFunction(std::string name, AST::Node* exec);
+	void defFunction(std::string name, Function* newFunction);
 	Function* getFunction(std::string name);
+	//metodo para verificar funcao (numero certo de parametros)
 
 private:
 	bool hasFunction(std::string name);
@@ -27,9 +28,10 @@ private:
 
 class Function {
 public:
-	Function(Type returnType, std::vector<ST::Symbol*> parameters) : returnType(returnType), parameters(parameters) {};
+	Function(Type returnType, std::vector<ST::Symbol*> parameters) : returnType(returnType), parameters(parameters), defined(false) {};
 	Type returnType;
 	std::vector<ST::Symbol*> parameters;
+	bool defined;
 };
 
 }

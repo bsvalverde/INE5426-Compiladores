@@ -128,29 +128,32 @@ public:
 	std::string printTree();
 };
 
-class FuncNode : public Node {
+class Function : public Node {
 public:
 	std::string name;
-	Block* code;
-	FuncNode(std::string name) : name(name) {}
+	NodeList code;
+	Function(std::string name) {
+		this->name = name;
+	}
 	std::string printTree();
 };
 
 class DeclFunc : public Node {
 public:
-	//TODO
-	Node* left;
-	Node* right;
-	Node* arrExpr;
-	DeclFunc(Node* left, Node* right, Node* arrExpr) : left(left), right(right), arrExpr(arrExpr) {}
+	Node* function;
+	DeclFunc(Node* function) : function(function) {}
 	std::string printTree();
 };
 
 class DefFunc : public Node {
 public:
-	//TODO
-	Node* next;
-	DefFunc(Node* next) : next(next) {}
+	Node* function;
+	NodeList code;
+	DefFunc(Node* function, NodeList code) : function(function), code(code) {
+		//TODO
+		//analisar semanticamente o codigo
+		//apenas verificar se tem return
+	}
 	std::string printTree();
 };
 

@@ -97,6 +97,18 @@ std::string Par::printTree() {
 	return retorno;
 }
 
+std::string Function::printTree() {
+	return "";
+}
+
+std::string DeclFunc::printTree() {
+	return "";
+}
+
+std::string DefFunc::printTree() {
+	return "";
+}
+
 std::string Return::printTree() {
 	return "Retorno de funcao: " + this->expr->printTree();
 }

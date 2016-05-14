@@ -7,17 +7,25 @@ FunTable::FunTable(){
 }
 
 void FunTable::addFunction(std::string name, Function* newFunction){
-
-}
-
-void FunTable::defFunction(std::string name, AST::Node* exec){
-	if(!hasFunction(name)){
-		//addFunction(name, NULL);
+	if(hasFunction(name)) {
+		yyerror("semantico: funcao %s sofrendo redeclaracao.", name.c_str());
+	} else {
+		this->table[name] = newFunction;
 	}
 }
 
-Function* FunTable::getFunction(std::string name){
+void FunTable::defFunction(std::string name, Function* newFunction){
+	if(!hasFunction(name)){
+		addFunction(name, newFunction);
+	}
+	if(this->table[name]->defined == true){
+		yyerror("semantico: funcao %s sofrendo redefinicao.", name.c_str());
+	}
+	this->table[name]->defined = true;
+}
 
+Function* FunTable::getFunction(std::string name){
+	//unused
 }
 
 bool FunTable::hasFunction(std::string name){

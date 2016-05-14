@@ -22,9 +22,7 @@ extern void yyerror(const char* s, ...);
 	const char* id;
 
 	Type typeEnum;
-	BinOperation opEnum;
-	//std::vector<ST::Symbol*> parameters;
-	int parameters;
+	std::vector<ST::Symbol*>* parameters;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -46,9 +44,8 @@ extern void yyerror(const char* s, ...);
 
 //Definição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun funsig 
+%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun
 %type <typeEnum> type
-%type <opEnum> op
 %type <parameters> params
 
 //Precedencia de operadores
@@ -153,8 +150,41 @@ expr	: const
 			var->arrExpr = $2;
 			$$ = var;
 		}
-		| expr op expr {
-			$$ = new AST::BinOp($1, $2, $3);
+		| expr T_PLUS expr {
+			$$ = new AST::BinOp($1, plus, $3);
+		}
+		| expr T_SUB expr {
+			$$ = new AST::BinOp($1, sub, $3);
+		}
+		| expr T_MULT expr {
+			$$ = new AST::BinOp($1, mult, $3);
+		}
+		| expr T_DIV expr {
+			$$ = new AST::BinOp($1, _div, $3);
+		}
+		| expr T_EQ expr {
+			$$ = new AST::BinOp($1, eq, $3);
+		}
+		| expr T_NEQ expr {
+			$$ = new AST::BinOp($1, neq, $3);
+		}
+		| expr T_LT expr {
+			$$ = new AST::BinOp($1, lt, $3);
+		}
+		| expr T_GT expr {
+			$$ = new AST::BinOp($1, gt, $3);
+		}
+		| expr T_LTE expr {
+			$$ = new AST::BinOp($1, lte, $3);
+		}
+		| expr T_GTE expr {
+			$$ = new AST::BinOp($1, gte, $3);
+		}
+		| expr T_AND expr {
+			$$ = new AST::BinOp($1, _and, $3);
+		}
+		| expr T_OR expr {
+			$$ = new AST::BinOp($1, _or, $3);
 		}
 		| T_SUB expr %prec U_NEG { 
 			$$ = new AST::UnOp(neg, $2);
@@ -167,33 +197,18 @@ expr	: const
 		}
 		;
 
-op 		: T_PLUS { $$ = BinOperation::plus; }
-		| T_SUB { $$ = BinOperation::sub; }
-		| T_MULT { $$ = BinOperation::mult; }
-		| T_DIV { $$ = BinOperation::_div; }
-		| T_EQ { $$ = BinOperation::eq; }
-		| T_NEQ { $$ = BinOperation::neq; }
-		| T_LT { $$ = BinOperation::lt; }
-		| T_GT { $$ = BinOperation::gt; }
-		| T_LTE { $$ = BinOperation::lte; }
-		| T_GTE { $$ = BinOperation::gte; }
-		| T_AND { $$ = BinOperation::_and; }
-		| T_OR { $$ = BinOperation::_or; }
-		;
-
-
-fun 	: T_DECL funsig T_ENDL { //aqui nodo declvar
-	$$ = NULL; }
-		| T_DEF funsig funcmds T_END T_DEF { //aqui nodo defvar que analisa semanticamente funcmds
-			$$ = NULL; }
-		;
-
-funsig 	: T_FUN type T_COLON T_ID T_APAR params T_FPAR {
-			//FT::Function* fun = new FT::Function($2, $6);
-			//funtable->addFunction($4, fun);
-			//retorna nodo function
-			$$ = NULL; 
+fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
+			FT::Function* fun = new FT::Function($3, *$7);
+			funtable->addFunction($5, fun);
+			$$ = new AST::DeclFunc(new AST::Function($5));
 		}
+		| T_DEF T_FUN type T_COLON T_ID T_APAR params T_FPAR funcmds T_END T_DEF {
+			FT::Function* fun = new FT::Function($3, *$7);
+			funtable->defFunction($5, fun);
+			//TODO
+			//mandar o bloco ou o vector?
+			$$ = new AST::DefFunc(new AST::Function($5), $9->nodes);
+		} //funsig removida porque deve chamar método diferente pra declarar e definir
 		;
 
 const   : T_INT { $$ = new AST::Const($1, Type::inteiro); }
@@ -206,10 +221,21 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		| T_DBOOL { $$ = Type::booleano; }
 		;
 
-params	: type T_COLON T_ID { //cria um vector e para cada tid adiciona new Symbol nele
-	$$ = NULL; }
-		| params T_COMMA type T_COLON T_ID { //ja criu entao so adiciona new Symbel (se basear em cmds)
-			$$ = NULL; }
+params	: type T_COLON T_ID {
+			$$ = new std::vector<ST::Symbol*>();
+			ST::Symbol* s = new ST::Symbol($1);
+			//TODO
+			//como ele ja vai receber, já está inicializado?
+			//faz diferença?
+			s->initialized = true;
+			$$->push_back(s);
+			//falta adicionar ao symtable do escopo
+			//ou só fazemos isso quando criamos o escopo da função?
+		}
+		| params T_COMMA type T_COLON T_ID {
+			ST::Symbol *s = new ST::Symbol($3);
+			$$->push_back(s);
+		}
 		;
 
 %%
