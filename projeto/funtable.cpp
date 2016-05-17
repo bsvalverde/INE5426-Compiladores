@@ -25,7 +25,11 @@ void FunTable::defFunction(std::string name, Function* newFunction){
 }
 
 Function* FunTable::getFunction(std::string name){
-	//unused
+	if(!hasFunction(name)){
+		//TODO fix error message
+		yyerror("semantico: funcao %s nao declarada.", name.c_str());
+	}
+	return this->table[name];
 }
 
 bool FunTable::hasFunction(std::string name){
