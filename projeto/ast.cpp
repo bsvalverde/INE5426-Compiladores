@@ -142,3 +142,14 @@ std::string DefFunc::printTree() {
 std::string Return::printTree() {
 	return "Retorno de funcao: " + this->expr->printTree();
 }
+
+std::string Conditional::printTree() {
+	std::string retorno = "Expressao condicional";
+	retorno += "\n+se: " + this->condition->printTree();
+	retorno += "\n+entao: " + this->then->printTree();
+	if(this->_else != NULL){
+		retorno += "\nsenao: " + this->_else->printTree();
+	}
+	retorno += "\nFim expressao condicional";
+	return retorno;
+}

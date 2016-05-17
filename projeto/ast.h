@@ -170,4 +170,13 @@ public:
 	std::string printTree();
 };
 
+class Conditional : public Node {
+public:
+	Node* condition;
+	Node* then;
+	Node* _else;
+	Conditional(Node* condition, Node* then, Node* _else) : condition(condition), then(then), _else(_else) {}
+	std::string printTree();
+};
+
 }
