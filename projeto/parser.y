@@ -204,10 +204,26 @@ expr	: const
 		;
 
 listparams:
-		T_ID arrExpr
-		| const
-		| listparams T_COMMA T_ID arrExpr
-		| listparams T_COMMA const
+		T_ID arrExpr {
+			$$ = new AST::Parameters();
+			AST::Variable* var = new AST::Variable($1, NULL);
+			var->type = symtable->useSymbol($1)->type;
+			var->arrExpr = $2;
+			$$->parametros.push_back(var);
+		}
+		| const {
+			$$ = new AST::Parameters();
+			$$->parametros.push_back($1);
+		}
+		| listparams T_COMMA T_ID arrExpr {
+			AST::Variable* var = new AST::Variable($3, NULL);
+			var->type = symtable->useSymbol($3)->type;
+			var->arrExpr = $4;
+			$$->parametros.push_back(var);
+		}
+		| listparams T_COMMA const {
+			$$->parametros.push_back($3);
+		}
 
 fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			FT::Function* fun = new FT::Function($3, *$7);
