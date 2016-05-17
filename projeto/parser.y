@@ -23,6 +23,7 @@ extern void yyerror(const char* s, ...);
 
 	Type typeEnum;
 	std::vector<ST::Symbol*>* parameters;
+	AST::Parameters* paramlist;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -44,9 +45,10 @@ extern void yyerror(const char* s, ...);
 
 //Definição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun listparam
+%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun
 %type <typeEnum> type
 %type <parameters> params
+%type <paramlist> listparams
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -151,9 +153,9 @@ expr	: const
 			$$ = var;
 		}
 		| T_ID T_APAR listparams T_FPAR {
-			AST::Funcall* fun = new AST::FunCall($1, $3);
+			AST::FunCall* fun = new AST::FunCall($1, $3);
 			//TODO trocar por use
-			fun->type = funtable->getFunction($1)->type;
+			fun->type = funtable->getFunction($1)->returnType;
 			$$ = fun;
 		}
 		| expr T_PLUS expr {
@@ -204,7 +206,7 @@ expr	: const
 		;
 
 listparams:
-		T_ID arrExpr {
+		T_ID arrexpr {
 			$$ = new AST::Parameters();
 			AST::Variable* var = new AST::Variable($1, NULL);
 			var->type = symtable->useSymbol($1)->type;
@@ -215,7 +217,7 @@ listparams:
 			$$ = new AST::Parameters();
 			$$->parametros.push_back($1);
 		}
-		| listparams T_COMMA T_ID arrExpr {
+		| listparams T_COMMA T_ID arrexpr {
 			AST::Variable* var = new AST::Variable($3, NULL);
 			var->type = symtable->useSymbol($3)->type;
 			var->arrExpr = $4;

@@ -140,8 +140,8 @@ public:
 class Parameters : public Node {
 public:
 	NodeList parametros;
-	Parameters();
-	std::string PrintTree();
+	Parameters() {}
+	std::string printTree();
 };
 
 class DeclFunc : public Node {

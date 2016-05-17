@@ -100,15 +100,18 @@ std::string Par::printTree() {
 }
 
 std::string FunCall::printTree() {
-	std::string retorno = "chamada de funcao " + Stringfier::typeStringF(this->type) + " " + this->name + " {+parametros: ";
-	
-	std::string par = params->printTree();
-	next = params->next;
-	while(next != NULL){
-		par = next->printTree() + ", " + par;
-		next = next->next;
+	std::string retorno = "chamada de funcao " + Stringfier::typeStringF(this->type) + " " + this->name;
+	retorno += " " + params->printTree();
+	return retorno;
+}
+
+std::string Parameters::printTree(){
+	std::string retorno = "{+parametros: ";
+	retorno += this->parametros[0]->printTree();
+	for(int i = 1; i < this->parametros.size(); i++){
+		retorno += ", " + this->parametros[i]->printTree();
 	}
-	retorno += par + "}";
+	retorno += "}";
 	return retorno;
 }
 
