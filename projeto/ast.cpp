@@ -2,7 +2,6 @@
 
 using namespace AST;
 
-extern ST::SymTable* symtable;
 extern FT::FunTable* funtable;
 
 std::string Block::printTree() {
@@ -101,38 +100,59 @@ std::string Par::printTree() {
 
 std::string FunCall::printTree() {
 	std::string retorno = "chamada de funcao " + Stringfier::typeStringF(this->type) + " " + this->name;
-	retorno += " " + params->printTree();
+	retorno += " " + args->printTree();
+	return retorno;
+}
+
+std::string Arguments::printTree(){
+	std::string retorno = "{+parametros: ";
+	retorno += this->arguments[0]->printTree();
+	for(int i = 1; i < this->arguments.size(); i++){
+		retorno += ", " + this->arguments[i]->printTree();
+	}
+	retorno += "}";
 	return retorno;
 }
 
 std::string Parameters::printTree(){
-	std::string retorno = "{+parametros: ";
-	retorno += this->parametros[0]->printTree();
-	for(int i = 1; i < this->parametros.size(); i++){
-		retorno += ", " + this->parametros[i]->printTree();
+	std::string retorno = "+parametros:\n";
+
+	AST::Variable* aux = (AST::Variable*) this->param;
+	while(aux != NULL) {
+		retorno += "Parametro " + Stringfier::typeStringM(aux->type) + ": " + aux->name + "\n";
+		aux = (AST::Variable*) aux->next;
 	}
-	retorno += "}";
+
 	return retorno;
 }
 
 std::string DeclFunc::printTree() {
 	FT::Function* fun = funtable->getFunction(this->funName);
 	std::string retorno = "Declaracao de funcao " + Stringfier::typeStringF(fun->returnType) + ": " + this->funName + "\n";
-	retorno += "+parametros:\n";
-	for(ST::Symbol* param : fun->parameters){
-		retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
-	}
+
+	retorno += this->parameters->printTree();
 	retorno += "Fim declaracao";
+
+	// retorno += "+parametros:\n";
+	// for(ST::Symbol* param : fun->parameters){
+	// 	retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
+	// }
+	// retorno += "Fim declaracao";
 	return retorno;
 }
 
 std::string DefFunc::printTree() {
 	FT::Function* fun = funtable->getFunction(this->funName);
 	std::string retorno = "Definicao de funcao " + Stringfier::typeStringF(fun->returnType) + ": " + this->funName + "\n";
-	retorno += "+parametros:\n";
-	for(ST::Symbol* param : fun->parameters){
-		retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
-	}
+	
+	retorno += this->parameters->printTree();
+
+	// retorno += "+parametros:\n";
+	// for(ST::Symbol* param : fun->parameters){
+	// 	retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
+	// }
+	
+
 	retorno += "+corpo:\n";
 	retorno += this->code->printTree();
 	retorno += "Fim definicao";

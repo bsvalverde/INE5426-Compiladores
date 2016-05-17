@@ -12,12 +12,13 @@ class Symbol;
 
 class SymTable {
 public:
-	SymTable();
+	SymTable(SymTable* superScope);
 	void addSymbol(std::string name);
 	Symbol* getSymbol(std::string name);
 	Symbol* useSymbol(std::string name);
 	void setSymbol(std::string name);
 
+	SymTable* superScope;
 private:
 	bool hasSymbol(std::string name);
 

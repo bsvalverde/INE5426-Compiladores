@@ -6,7 +6,13 @@
 #include "enums.h"
 
 AST::Block* root;
-ST::SymTable* symtable = new ST::SymTable();
+ST::SymTable* symtable = new ST::SymTable(NULL);
+
+// rotina para deleção de escopo:
+// oldSymtable = symtable;
+// symtable = symtable->superScope;
+// delete oldSymtable;
+
 FT::FunTable* funtable = new FT::FunTable();
 
 extern int yylex();
@@ -22,8 +28,8 @@ extern void yyerror(const char* s, ...);
 	const char* id;
 
 	Type typeEnum;
-	std::vector<ST::Symbol*>* parameters;
-	AST::Parameters* paramlist;
+	// std::vector<ST::Symbol*>* parameters;
+	AST::Arguments* argList;
 
 	AST::Node* node;
 	AST::Block* block;
@@ -46,10 +52,10 @@ extern void yyerror(const char* s, ...);
 
 //Definição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun
+%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun params
 %type <typeEnum> type
-%type <parameters> params
-%type <paramlist> listparams
+// %type <parameters> params
+%type <argList> arglist
 
 //Precedencia de operadores
 %left T_EQ T_NEQ
@@ -88,6 +94,8 @@ cmd 	: decl T_ENDL
 		;
 
 funcmds : funcmd { 
+			symtable = new ST::SymTable(symtable);
+
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
 		}
@@ -159,7 +167,7 @@ expr	: const
 			var->arrExpr = $2;
 			$$ = var;
 		}
-		| T_ID T_APAR listparams T_FPAR {
+		| T_ID T_APAR arglist T_FPAR {
 			AST::FunCall* fun = new AST::FunCall($1, $3);
 			//TODO trocar por use
 			fun->type = funtable->getFunction($1)->returnType;
@@ -212,25 +220,42 @@ expr	: const
 		}
 		;
 
-listparams:
-		expr {
-			$$ = new AST::Parameters();
-			$$->parametros.push_back($1);
+arglist:expr {
+			$$ = new AST::Arguments();
+			$$->arguments.push_back($1);
 		}
-		| listparams T_COMMA expr {
-			$$->parametros.push_back($3);
+		| arglist T_COMMA expr {
+			$$->arguments.push_back($3);
 		}
 		;
 
 fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
-			FT::Function* fun = new FT::Function($3, *$7);
+			std::vector<ST::Symbol*> symbols;
+			AST::Variable* aux = (AST::Variable*)$7;
+			while(aux != NULL){
+				symbols.push_back(new ST::Symbol(aux->type));
+				aux = (AST::Variable*) aux->next;
+			}
+			FT::Function* fun = new FT::Function($3, symbols);
 			funtable->addFunction($5, fun);
-			$$ = new AST::DeclFunc($5);
+			$$ = new AST::DeclFunc($5, new AST::Parameters($7));
+			$$->type = $3;
 		}
 		| T_DEF T_FUN type T_COLON T_ID T_APAR params T_FPAR funcmds T_END T_DEF {
-			FT::Function* fun = new FT::Function($3, *$7);
+			std::vector<ST::Symbol*> symbols;
+			AST::Variable* aux = (AST::Variable*)$7;
+			while(aux != NULL){
+				symbols.push_back(new ST::Symbol(aux->type));
+				aux = (AST::Variable*) aux->next;
+			}
+			FT::Function* fun = new FT::Function($3, symbols);
 			funtable->defFunction($5, fun);
-			$$ = new AST::DefFunc($5, $9);
+			$$ = new AST::DefFunc($5, new AST::Parameters($7), $9);
+			$$->type = $3;
+
+			ST::SymTable* oldSymtable = symtable;
+			symtable = symtable->superScope;
+			delete oldSymtable;
 		}
 		;
 
@@ -245,22 +270,31 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		;
 
 params	: type T_COLON T_ID {
-			$$ = new std::vector<ST::Symbol*>();
-			ST::Symbol* s = new ST::Symbol($1);
-			//TODO
-			//como ele ja vai receber, já está inicializado?
-			//faz diferença?
-			s->initialized = true;
-			$$->push_back(s);
+			AST::Variable* var = new AST::Variable($3, NULL);
+			var->type = $1;
+			$$ = var;
+
+			// $$ = new std::vector<ST::Symbol*>();
+			// ST::Symbol* s = new ST::Symbol($1);
+			// //TODO
+			// //como ele ja vai receber, já está inicializado?
+			// //faz diferença?
+			// s->initialized = true;
+			// $$->push_back(s);
 			//falta adicionar ao symtable do escopo
 			//ou só fazemos isso quando criamos o escopo da função?
 		}
 		| params T_COMMA type T_COLON T_ID {
-			ST::Symbol *s = new ST::Symbol($3);
-			$$->push_back(s);
+			AST::Variable* var = new AST::Variable($5, $1);
+			var->type = $3;
+			$$ = var;
+
+			// ST::Symbol *s = new ST::Symbol($3);
+			// $$->push_back(s);
 		}
 		| {
-			$$ = new std::vector<ST::Symbol*>();
+			$$ = NULL;
+			// $$ = new std::vector<ST::Symbol*>();
 		}
 		;
 

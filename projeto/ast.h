@@ -2,7 +2,6 @@
 #pragma once
 
 #include <vector>
-#include "symtable.h"
 #include "funtable.h"
 #include "enums.h"
 #include "stringfier.h"
@@ -132,30 +131,39 @@ public:
 class FunCall : public Node {
 public:
 	std::string name;
-	Node* params;
-	FunCall(std::string name, Node* params) : name(name), params(params) {}
+	Node* args;
+	FunCall(std::string name, Node* args) : name(name), args(args) {}
+	std::string printTree();
+};
+
+class Arguments : public Node {
+public:
+	NodeList arguments;
+	Arguments() {}
 	std::string printTree();
 };
 
 class Parameters : public Node {
 public:
-	NodeList parametros;
-	Parameters() {}
+	Node* param;
+	Parameters(Node* param) : param(param) {}
 	std::string printTree();
 };
 
 class DeclFunc : public Node {
 public:
 	std::string funName;
-	DeclFunc(std::string funName) : funName(funName) {}
+	Node* parameters;
+	DeclFunc(std::string funName, Node* parameters) : funName(funName), parameters(parameters) {}
 	std::string printTree();
 };
 
 class DefFunc : public Node {
 public:
 	std::string funName;
+	Node* parameters;
 	Node* code;
-	DefFunc(std::string funName, Node* code) : funName(funName), code(code) {
+	DefFunc(std::string funName, Node* parameters, Node* code) : funName(funName), parameters(parameters), code(code) {
 		//TODO
 		//analisar semanticamente o codigo
 		//apenas verificar se tem return
