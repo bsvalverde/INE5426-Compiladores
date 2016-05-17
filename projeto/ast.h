@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "symtable.h"
+#include "funtable.h"
 #include "enums.h"
 #include "stringfier.h"
 
@@ -128,28 +129,33 @@ public:
 	std::string printTree();
 };
 
-class Function : public Node {
+class FunCall : public Node {
 public:
 	std::string name;
-	NodeList code;
-	Function(std::string name) {
-		this->name = name;
-	}
+	Node* params;
+	FunCall(std::string name, Node* params) : name(name), params(params) {}
 	std::string printTree();
+};
+
+class Parameters : public Node {
+public:
+	NodeList parametros;
+	Parameters();
+	std::string PrintTree();
 };
 
 class DeclFunc : public Node {
 public:
-	Node* function;
-	DeclFunc(Node* function) : function(function) {}
+	std::string funName;
+	DeclFunc(std::string funName) : funName(funName) {}
 	std::string printTree();
 };
 
 class DefFunc : public Node {
 public:
-	Node* function;
-	NodeList code;
-	DefFunc(Node* function, NodeList code) : function(function), code(code) {
+	std::string funName;
+	Node* code;
+	DefFunc(std::string funName, Node* code) : funName(funName), code(code) {
 		//TODO
 		//analisar semanticamente o codigo
 		//apenas verificar se tem return

@@ -5,7 +5,6 @@
 #include <vector>
 #include "symtable.h"
 #include "enums.h"
-#include "ast.h"
 
 extern void yyerror(const char* s, ...);
 

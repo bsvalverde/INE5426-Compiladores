@@ -3,13 +3,15 @@
 using namespace AST;
 
 extern ST::SymTable* symtable;
+extern FT::FunTable* funtable;
 
 std::string Block::printTree() {
+	std::string retorno = "";
 	for(Node* node : nodes) {
 		if(node != NULL)
-			printf("%s\n", node->printTree().c_str());
+			retorno += node->printTree() + "\n";
 	}
-	return "";
+	return retorno;
 }
 
 std::string UnOp::printTree() {
@@ -97,16 +99,41 @@ std::string Par::printTree() {
 	return retorno;
 }
 
-std::string Function::printTree() {
-	return "";
+std::string FunCall::printTree() {
+	std::string retorno = "chamada de funcao " + Stringfier::typeStringF(this->type) + " " + this->name + " {+parametros: ";
+	
+	std::string par = params->printTree();
+	next = params->next;
+	while(next != NULL){
+		par = next->printTree() + ", " + par;
+		next = next->next;
+	}
+	retorno += par + "}";
+	return retorno;
 }
 
 std::string DeclFunc::printTree() {
-	return "";
+	FT::Function* fun = funtable->getFunction(this->funName);
+	std::string retorno = "Declaracao de funcao " + Stringfier::typeStringF(fun->returnType) + ": " + this->funName + "\n";
+	retorno += "+parametros:\n";
+	for(ST::Symbol* param : fun->parameters){
+		retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
+	}
+	retorno += "Fim declaracao";
+	return retorno;
 }
 
 std::string DefFunc::printTree() {
-	return "";
+	FT::Function* fun = funtable->getFunction(this->funName);
+	std::string retorno = "Definicao de funcao " + Stringfier::typeStringF(fun->returnType) + ": " + this->funName + "\n";
+	retorno += "+parametros:\n";
+	for(ST::Symbol* param : fun->parameters){
+		retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
+	}
+	retorno += "+corpo:\n";
+	retorno += this->code->printTree();
+	retorno += "Fim definicao";
+	return retorno;
 }
 
 std::string Return::printTree() {

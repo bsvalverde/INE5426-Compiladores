@@ -44,7 +44,7 @@ extern void yyerror(const char* s, ...);
 
 //Definição de tipos não-terminais
 %type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun
+%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun listparam
 %type <typeEnum> type
 %type <parameters> params
 
@@ -150,6 +150,12 @@ expr	: const
 			var->arrExpr = $2;
 			$$ = var;
 		}
+		| T_ID T_APAR listparams T_FPAR {
+			AST::Funcall* fun = new AST::FunCall($1, $3);
+			//TODO trocar por use
+			fun->type = funtable->getFunction($1)->type;
+			$$ = fun;
+		}
 		| expr T_PLUS expr {
 			$$ = new AST::BinOp($1, plus, $3);
 		}
@@ -197,18 +203,22 @@ expr	: const
 		}
 		;
 
+listparams:
+		T_ID arrExpr
+		| const
+		| listparams T_COMMA T_ID arrExpr
+		| listparams T_COMMA const
+
 fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			FT::Function* fun = new FT::Function($3, *$7);
 			funtable->addFunction($5, fun);
-			$$ = new AST::DeclFunc(new AST::Function($5));
+			$$ = new AST::DeclFunc($5);
 		}
 		| T_DEF T_FUN type T_COLON T_ID T_APAR params T_FPAR funcmds T_END T_DEF {
 			FT::Function* fun = new FT::Function($3, *$7);
 			funtable->defFunction($5, fun);
-			//TODO
-			//mandar o bloco ou o vector?
-			$$ = new AST::DefFunc(new AST::Function($5), $9->nodes);
-		} //funsig removida porque deve chamar método diferente pra declarar e definir
+			$$ = new AST::DefFunc($5, $9);
+		}
 		;
 
 const   : T_INT { $$ = new AST::Const($1, Type::inteiro); }
@@ -235,6 +245,9 @@ params	: type T_COLON T_ID {
 		| params T_COMMA type T_COLON T_ID {
 			ST::Symbol *s = new ST::Symbol($3);
 			$$->push_back(s);
+		}
+		| {
+			$$ = new std::vector<ST::Symbol*>();
 		}
 		;
 

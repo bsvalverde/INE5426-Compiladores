@@ -11,7 +11,8 @@ int main(int argc, char **argv)
 {
     //yydebug = 1;
     yyparse();                  //parses whole data
-    root->printTree();   //prints the ASTs
+    std::cout << std::endl;
+    std::cout << root->printTree();   //prints the ASTs
     std::cout << std::endl;
     // root->computeTree(); //computes the ASTs
     return 0;
