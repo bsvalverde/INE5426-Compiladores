@@ -64,11 +64,16 @@ bool "TRUE"|"FALSE"
  /* Tokens de Função */
 "def"	{return T_DEF;}
 "decl"	{return T_DECL;}
-"end"	{return T_END;}
 "fun"	{return T_FUN;}
 "return"	{return T_RET;}
+ 
+ /* Tokens de Condição */
+"if"	{return T_IF;}
+"then"	{return T_THEN;}
+"else"	{return T_ELSE;}
 
  /* Misc */
+"end"	{return T_END;}
 {id}	{
 	yylval.id = strdup(yytext);
 	return T_ID;

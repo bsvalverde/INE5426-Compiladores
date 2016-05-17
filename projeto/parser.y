@@ -42,6 +42,7 @@ extern void yyerror(const char* s, ...);
 %token T_NEQ T_EQ T_GTE T_GT T_LTE T_LT 
 %token T_COLON T_ENDL T_COMMA
 %token T_DEF T_DECL T_END T_FUN T_RET
+%token T_IF T_THEN T_ELSE
 
 //Definição de tipos não-terminais
 %type <block> program cmds funcmds
@@ -66,6 +67,11 @@ extern void yyerror(const char* s, ...);
 program	: cmds { root = $1; }
 ;
 
+//code	: cmds
+//		| fun
+//		| code cmds
+//		| code fun
+
 cmds	: cmd { 
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
@@ -77,7 +83,7 @@ cmds	: cmd {
 
 cmd 	: decl T_ENDL
 		| attr T_ENDL
-		| fun
+		| fun//cond
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
@@ -92,6 +98,7 @@ funcmds : funcmd {
 
 funcmd 	: decl T_ENDL
 		| attr T_ENDL
+
 		| T_RET expr T_ENDL {
 			$$ = new AST::Return($2);
 		}
@@ -206,26 +213,14 @@ expr	: const
 		;
 
 listparams:
-		T_ID arrexpr {
-			$$ = new AST::Parameters();
-			AST::Variable* var = new AST::Variable($1, NULL);
-			var->type = symtable->useSymbol($1)->type;
-			var->arrExpr = $2;
-			$$->parametros.push_back(var);
-		}
-		| const {
+		expr {
 			$$ = new AST::Parameters();
 			$$->parametros.push_back($1);
 		}
-		| listparams T_COMMA T_ID arrexpr {
-			AST::Variable* var = new AST::Variable($3, NULL);
-			var->type = symtable->useSymbol($3)->type;
-			var->arrExpr = $4;
-			$$->parametros.push_back(var);
-		}
-		| listparams T_COMMA const {
+		| listparams T_COMMA expr {
 			$$->parametros.push_back($3);
 		}
+		;
 
 fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			FT::Function* fun = new FT::Function($3, *$7);
