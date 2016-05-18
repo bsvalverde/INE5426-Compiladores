@@ -58,11 +58,13 @@ extern void yyerror(const char* s, ...);
 %type <argList> arglist
 
 //Precedencia de operadores
+%left T_OR T_AND
+%left T_NOT
 %left T_EQ T_NEQ
 %left T_LT T_GT T_LTE T_GTE
 %left T_PLUS T_SUB
 %left T_MULT T_DIV
-%right U_NEG T_NOT
+%right U_NEG
 %left U_PAR
 %nonassoc error
 
