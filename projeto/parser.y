@@ -45,10 +45,11 @@ extern void yyerror(const char* s, ...);
 %token T_IF T_THEN T_ELSE
 
 //Definição de tipos não-terminais
-%type <block> program code /*cmds*/ funcmds
-%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params
+%type <block> program code cmds funcmds
+%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond
 %type <typeEnum> type
 %type <argList> arglist
+%type <node> newscope endscope
 
 //Precedencia de operadores
 %left T_OR T_AND
@@ -81,18 +82,18 @@ global  : cmd
 		| fun
 		;
 
-// cmds	: cmd { 
-// 			$$ = new AST::Block(); 
-// 			$$->nodes.push_back($1);
-// 		}
-// 		| cmds cmd {
-// 			if($2 != NULL) $1->nodes.push_back($2);
-// 		}
-// 		;
+cmds	: cmd { 
+			$$ = new AST::Block(); 
+			$$->nodes.push_back($1);
+		}
+		| cmds cmd {
+			if($2 != NULL) $1->nodes.push_back($2);
+		}
+		;
 
 cmd 	: decl T_ENDL
 		| attr T_ENDL
-		//| cond
+		| cond
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
@@ -238,25 +239,24 @@ fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			$$ = new AST::DeclFunc($5, new AST::Parameters($7));
 			$$->type = $3;
 		}
-		| T_DEF T_FUN type T_COLON T_ID T_APAR params T_FPAR funcmds T_END T_DEF {
+		| T_DEF T_FUN type T_COLON T_ID newscope T_APAR params T_FPAR funcmds endscope T_END T_DEF {
 			std::vector<ST::Symbol*> temp;
-			AST::Variable* aux = (AST::Variable*)$7;
+			AST::Variable* aux = (AST::Variable*)$8;
 			while(aux != NULL){
 				temp.push_back(new ST::Symbol(aux->type));
 				aux = (AST::Variable*) aux->next;
 			}
 			std::vector<ST::Symbol*> symbols;
+			//TODO arrumar a ordem dos parametros
+			//params está de trás para frente e arglist de frente pra tras
+			//ou mudar o params para ter nodelist ao inves de variables
 			/*for(int i = temp.size()-1; i >= 0; i++){
 				symbols.push_back(temp[i]);
 			}*/
 			FT::Function* fun = new FT::Function($3, temp);
 			funtable->defFunction($5, fun);
-			$$ = new AST::DefFunc($5, new AST::Parameters($7), $9);
+			$$ = new AST::DefFunc($5, new AST::Parameters($8), $10);
 			$$->type = $3;
-
-			ST::SymTable* oldSymtable = symtable;
-			symtable = symtable->superScope;
-			delete oldSymtable;
 		}
 		;
 
@@ -271,7 +271,6 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		;
 
 params	: type T_COLON T_ID {
-			symtable = new ST::SymTable(symtable);
 			symtable->addSymbol($3, $1);
 			AST::Variable* var = new AST::Variable($3, NULL);
 			var->type = $1;
@@ -284,9 +283,27 @@ params	: type T_COLON T_ID {
 			$$ = var;
 		}
 		| {
-			symtable = new ST::SymTable(symtable);
 			$$ = NULL;
 		}
 		;
+
+cond	: T_IF expr T_THEN newscope cmds endscope T_END T_IF {
+			$$ = new AST::Conditional($2, $5, NULL);
+		}
+		| T_IF expr T_THEN newscope cmds endscope T_ELSE newscope cmds endscope T_END T_IF {
+			$$ = new AST::Conditional($2, $5, $9);
+		}
+
+newscope: {
+			symtable = new ST::SymTable(symtable);
+			$$ = NULL;
+		}
+
+endscope: {
+			ST::SymTable* oldSymtable = symtable;
+			symtable = symtable->superScope;
+			delete oldSymtable;
+			$$ = NULL;
+		}
 
 %%

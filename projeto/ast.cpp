@@ -165,11 +165,11 @@ std::string Return::printTree() {
 
 std::string Conditional::printTree() {
 	std::string retorno = "Expressao condicional";
-	retorno += "\n+se: " + this->condition->printTree();
-	retorno += "\n+entao: " + this->then->printTree();
+	retorno += "\n+se:\n" + this->condition->printTree();
+	retorno += "\n+entao:\n" + this->then->printTree();
 	if(this->_else != NULL){
-		retorno += "\nsenao: " + this->_else->printTree();
+		retorno += "+senao:\n" + this->_else->printTree();
 	}
-	retorno += "\nFim expressao condicional";
+	retorno += "Fim expressao condicional";
 	return retorno;
 }
