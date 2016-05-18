@@ -8,11 +8,6 @@
 AST::Block* root;
 ST::SymTable* symtable = new ST::SymTable(NULL);
 
-// rotina para deleção de escopo:
-// oldSymtable = symtable;
-// symtable = symtable->superScope;
-// delete oldSymtable;
-
 FT::FunTable* funtable = new FT::FunTable();
 
 extern int yylex();
@@ -28,7 +23,6 @@ extern void yyerror(const char* s, ...);
 	const char* id;
 
 	Type typeEnum;
-	// std::vector<ST::Symbol*>* parameters;
 	AST::Arguments* argList;
 
 	AST::Node* node;
@@ -51,10 +45,9 @@ extern void yyerror(const char* s, ...);
 %token T_IF T_THEN T_ELSE
 
 //Definição de tipos não-terminais
-%type <block> program cmds funcmds
-%type <node> cmd funcmd decl listvar attr expr const arr arrexpr fun params
+%type <block> program code /*cmds*/ funcmds
+%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params
 %type <typeEnum> type
-// %type <parameters> params
 %type <argList> arglist
 
 //Precedencia de operadores
@@ -72,32 +65,38 @@ extern void yyerror(const char* s, ...);
 
 %%
 
-program	: cmds { root = $1; }
+program	: code { root = $1; }
 ;
 
-//code	: cmds
-//		| fun
-//		| code cmds
-//		| code fun
-
-cmds	: cmd { 
+code	: global {
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
 		}
-		| cmds cmd {
+		| code global {
 			if($2 != NULL) $1->nodes.push_back($2);
 		}
 		;
 
+global  : cmd
+		| fun
+		;
+
+// cmds	: cmd { 
+// 			$$ = new AST::Block(); 
+// 			$$->nodes.push_back($1);
+// 		}
+// 		| cmds cmd {
+// 			if($2 != NULL) $1->nodes.push_back($2);
+// 		}
+// 		;
+
 cmd 	: decl T_ENDL
 		| attr T_ENDL
-		| fun//cond
+		//| cond
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
-funcmds : funcmd { 
-//			symtable = new ST::SymTable(symtable);
-
+funcmds : funcmd {
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
 		}
@@ -106,14 +105,10 @@ funcmds : funcmd {
 		}
 		;
 
-funcmd 	: decl T_ENDL
-		| attr T_ENDL
-
+funcmd  : cmd
 		| T_RET expr T_ENDL {
 			$$ = new AST::Return($2);
 		}
-        | error T_ENDL {yyerrok; $$=NULL;}
-		;
 
 decl	: type arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
@@ -262,9 +257,6 @@ fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			ST::SymTable* oldSymtable = symtable;
 			symtable = symtable->superScope;
 			delete oldSymtable;
-			printf("velho escopo");
-			if(symtable->superScope == NULL)
-				printf("deu certo");
 		}
 		;
 
@@ -279,11 +271,8 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		;
 
 params	: type T_COLON T_ID {
-		printf("novo escopo");
 			symtable = new ST::SymTable(symtable);
 			symtable->addSymbol($3, $1);
-			if(symtable->superScope == NULL)
-				printf("deu errado");
 			AST::Variable* var = new AST::Variable($3, NULL);
 			var->type = $1;
 			$$ = var;
@@ -295,7 +284,6 @@ params	: type T_COLON T_ID {
 			$$ = var;
 		}
 		| {
-			printf("novo escopo");
 			symtable = new ST::SymTable(symtable);
 			$$ = NULL;
 		}
