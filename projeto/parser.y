@@ -220,12 +220,12 @@ expr	: const
 		}
 		;
 
-arglist:expr {
+arglist : expr {
 			$$ = new AST::Arguments();
 			$$->arguments.push_back($1);
 		}
 		| arglist T_COMMA expr {
-			$$->arguments.push_back($3);
+			if($3 != NULL) $1->arguments.push_back($3);
 		}
 		;
 
@@ -242,13 +242,17 @@ fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			$$->type = $3;
 		}
 		| T_DEF T_FUN type T_COLON T_ID T_APAR params T_FPAR funcmds T_END T_DEF {
-			std::vector<ST::Symbol*> symbols;
+			std::vector<ST::Symbol*> temp;
 			AST::Variable* aux = (AST::Variable*)$7;
 			while(aux != NULL){
-				symbols.push_back(new ST::Symbol(aux->type));
+				temp.push_back(new ST::Symbol(aux->type));
 				aux = (AST::Variable*) aux->next;
 			}
-			FT::Function* fun = new FT::Function($3, symbols);
+			std::vector<ST::Symbol*> symbols;
+			/*for(int i = temp.size()-1; i >= 0; i++){
+				symbols.push_back(temp[i]);
+			}*/
+			FT::Function* fun = new FT::Function($3, temp);
 			funtable->defFunction($5, fun);
 			$$ = new AST::DefFunc($5, new AST::Parameters($7), $9);
 			$$->type = $3;
@@ -256,6 +260,9 @@ fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 			ST::SymTable* oldSymtable = symtable;
 			symtable = symtable->superScope;
 			delete oldSymtable;
+			printf("velho escopo");
+			if(symtable->superScope == NULL)
+				printf("deu certo");
 		}
 		;
 
@@ -270,31 +277,25 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		;
 
 params	: type T_COLON T_ID {
+		printf("novo escopo");
+			symtable = new ST::SymTable(symtable);
+			symtable->addSymbol($3, $1);
+			if(symtable->superScope == NULL)
+				printf("deu errado");
 			AST::Variable* var = new AST::Variable($3, NULL);
 			var->type = $1;
 			$$ = var;
-
-			// $$ = new std::vector<ST::Symbol*>();
-			// ST::Symbol* s = new ST::Symbol($1);
-			// //TODO
-			// //como ele ja vai receber, já está inicializado?
-			// //faz diferença?
-			// s->initialized = true;
-			// $$->push_back(s);
-			//falta adicionar ao symtable do escopo
-			//ou só fazemos isso quando criamos o escopo da função?
 		}
 		| params T_COMMA type T_COLON T_ID {
+			symtable->addSymbol($5, $3);
 			AST::Variable* var = new AST::Variable($5, $1);
 			var->type = $3;
 			$$ = var;
-
-			// ST::Symbol *s = new ST::Symbol($3);
-			// $$->push_back(s);
 		}
 		| {
+			printf("novo escopo");
+			symtable = new ST::SymTable(symtable);
 			$$ = NULL;
-			// $$ = new std::vector<ST::Symbol*>();
 		}
 		;
 

@@ -14,6 +14,7 @@ class SymTable {
 public:
 	SymTable(SymTable* superScope);
 	void addSymbol(std::string name);
+	void addSymbol(std::string name, Type type);
 	Symbol* getSymbol(std::string name);
 	Symbol* useSymbol(std::string name);
 	void setSymbol(std::string name);

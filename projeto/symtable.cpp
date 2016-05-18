@@ -16,6 +16,12 @@ void SymTable::addSymbol(std::string name) {
 	}
 }
 
+void SymTable::addSymbol(std::string name, Type type) {
+	this->addSymbol(name);
+	this->table[name]->type = type;
+	this->table[name]->initialized = true;
+}
+
 Symbol* SymTable::getSymbol(std::string name) {
 	if(hasSymbol(name)) {
 		return this->table[name];
