@@ -94,7 +94,7 @@ cmd 	: decl T_ENDL
 		;
 
 funcmds : funcmd { 
-			symtable = new ST::SymTable(symtable);
+//			symtable = new ST::SymTable(symtable);
 
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
