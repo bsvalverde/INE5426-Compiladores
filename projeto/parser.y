@@ -318,9 +318,15 @@ params	: type T_COLON T_ID {
 		;
 
 cond	: T_IF expr T_THEN newscope cmds endscope T_END T_IF {
+			if($2->type != Type::booleano){
+				yyerror("semantico: operacao teste espera booleano mas recebeu %s.", Stringfier::typeStringM($2->type).c_str());
+			}
 			$$ = new AST::Conditional($2, $5, NULL);
 		}
 		| T_IF expr T_THEN newscope cmds endscope T_ELSE newscope cmds endscope T_END T_IF {
+			if($2->type != Type::booleano){
+				yyerror("semantico: operacao teste espera booleano mas recebeu %s.", Stringfier::typeStringM($2->type).c_str());
+			}
 			$$ = new AST::Conditional($2, $5, $9);
 		}
 		;
