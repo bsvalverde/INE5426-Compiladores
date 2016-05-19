@@ -29,10 +29,11 @@ private:
 class Symbol {
 public:
 	Symbol();
-	Symbol(Type type) : type(type), initialized(false) {}
+	Symbol(Type type) : type(type), initialized(false), arrSize(0) {}
 	void setType(Type type);
 
 	Type type;
+	int arrSize;
 	bool initialized;
 };
 

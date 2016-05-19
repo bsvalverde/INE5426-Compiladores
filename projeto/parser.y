@@ -114,8 +114,17 @@ funcmd  : cmd
 decl	: type arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
-				var->arrExpr = $2;
 				ST::Symbol* s = symtable->getSymbol(var->name);
+				AST::Const* array = (AST::Const*) $2;
+				if($2 != NULL){
+					if(atoi(array->value.c_str()) < 1){
+						array = new AST::Const("1", Type::inteiro);
+						yyerror("semantico: arranjo %s com tamanho menor do que um.", var->name.c_str());
+					}
+					s->arrSize = atoi(array->value.c_str());
+					s->initialized = true;
+				}
+				var->arrExpr = array;
 				s->setType($1);
 				var->type = s->type;
 				var = (AST::Variable*) var->next;
@@ -133,6 +142,9 @@ arr 	: T_AARR T_INT T_FARR {
 		;
 
 arrexpr : T_AARR expr T_FARR {
+			if($2->type != Type::inteiro){
+				yyerror("semantico: indice de tipo %s.", Stringfier::typeStringM($2->type).c_str());
+			}
 			$$ = $2;
 		}
 		| { 
@@ -151,7 +163,15 @@ listvar	: T_ID {
 
 attr 	: T_ID arrexpr T_ATTR expr {
 			AST::Variable* var = new AST::Variable($1, NULL);
-			var->type = symtable->getSymbol($1)->type;
+			ST::Symbol* s = symtable->getSymbol($1);
+			var->type = s->type;
+			if(s->arrSize == 0 && $2 != NULL){
+				yyerror("semantico: variavel %s com uso como arranjo;", $1);
+				var->type = Type::desconhecido;
+			} else if (s->arrSize > 0 && $2 == NULL){
+				yyerror("semantico: arranjo %s com uso como variavel;", $1);
+				var->type = Type::desconhecido;
+			}
 			var->arrExpr = $2;
 			symtable->setSymbol($1);
 			$$ = new AST::AssignVar(var, $4, $2);
@@ -159,9 +179,19 @@ attr 	: T_ID arrexpr T_ATTR expr {
 		;
 
 expr	: const 
-		| T_ID arrexpr { 
+		| T_ID arrexpr {
 			AST::Variable* var = new AST::Variable($1, NULL);
-			var->type = symtable->useSymbol($1)->type;
+			ST::Symbol* s = symtable->useSymbol($1);
+			var->type = s->type;
+			if(s->type != Type::desconhecido){
+				if(s->arrSize == 0 && $2 != NULL){
+					yyerror("semantico: variavel %s com uso como arranjo;", $1);
+					var->type = Type::desconhecido;
+				} else if (s->arrSize > 0 && $2 == NULL){
+					yyerror("semantico: arranjo %s com uso como variavel;", $1);
+					var->type = Type::desconhecido;
+				}
+			}
 			var->arrExpr = $2;
 			$$ = var;
 		}
@@ -293,11 +323,13 @@ cond	: T_IF expr T_THEN newscope cmds endscope T_END T_IF {
 		| T_IF expr T_THEN newscope cmds endscope T_ELSE newscope cmds endscope T_END T_IF {
 			$$ = new AST::Conditional($2, $5, $9);
 		}
+		;
 
 newscope: {
 			symtable = new ST::SymTable(symtable);
 			$$ = NULL;
 		}
+		;
 
 endscope: {
 			ST::SymTable* oldSymtable = symtable;
@@ -305,5 +337,6 @@ endscope: {
 			delete oldSymtable;
 			$$ = NULL;
 		}
+		;
 
 %%
