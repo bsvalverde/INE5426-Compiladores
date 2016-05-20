@@ -182,3 +182,16 @@ std::string Loop::printTree() {
 	retorno += "Fim laco";
 	return retorno;
 }
+
+std::string Complex::printTree() {
+	std::string retorno = "Definicao tipo: ";
+	retorno += this->name;
+	retorno += "\n+componentes:";
+	AST::Variable* aux = (AST::Variable*) this->attributes;
+	while(aux != NULL) {
+		retorno += "\nComponente " + aux->printTree();
+		aux = (AST::Variable*) aux->next;
+	}
+	retorno += "\nFim definicao";
+	return retorno;
+}

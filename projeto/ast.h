@@ -195,4 +195,12 @@ public:
 	std::string printTree();
 };
 
+class Complex : public Node {
+public:
+	std::string name;
+	Node* attributes;
+	Complex(std::string name, Node* attributes) : name(name), attributes(attributes) {}
+	std::string printTree();
+};
+
 }
