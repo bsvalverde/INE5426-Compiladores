@@ -19,6 +19,7 @@ public:
 	void defFunction(std::string name, Function* newFunction);
 	Function* getFunction(std::string name);
 	//metodo para verificar funcao (numero certo de parametros)
+	void checkDefinitions();
 
 private:
 	bool hasFunction(std::string name);

@@ -35,3 +35,12 @@ Function* FunTable::getFunction(std::string name){
 bool FunTable::hasFunction(std::string name){
 	return this->table.find(name) != this->table.end();
 }
+void FunTable::checkDefinitions(){
+	std::map<std::string, Function*>::iterator it = table.begin();
+	while(it != table.end()){
+		if(!table[it->first]->defined){
+			yyerror("semantico: funcao %s declarada mas nunca definida.", it->first.c_str());
+		}
+		it++;
+	}
+}
