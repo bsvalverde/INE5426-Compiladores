@@ -66,7 +66,10 @@ extern void yyerror(const char* s, ...);
 
 %%
 
-program	: code { root = $1; }
+program	: code {
+			root = $1;
+			funtable->checkDefinitions();
+		}
 ;
 
 code	: global {
