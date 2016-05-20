@@ -76,6 +76,10 @@ bool "TRUE"|"FALSE"
 "while"	{return T_WHILE;}
 "do"	{return T_DO;}
 
+ /* Tokens de tipo composto */
+"type"	{return T_TYPE;}
+"."		{return T_DOT;}
+
  /* Misc */
 "end"	{return T_END;}
 {id}	{

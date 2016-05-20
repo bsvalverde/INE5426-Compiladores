@@ -195,4 +195,12 @@ public:
 	std::string printTree();
 };
 
+class Composite : public Node {
+public:
+	std::string name;
+	Node* attributes;
+	Composite(std::string name, Node* attributes) : name(name), attributes(attributes) {}
+	std::string printTree();
+};
+
 }

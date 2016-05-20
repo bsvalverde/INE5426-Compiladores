@@ -44,10 +44,11 @@ extern void yyerror(const char* s, ...);
 %token T_DEF T_DECL T_END T_FUN T_RET
 %token T_IF T_THEN T_ELSE
 %token T_WHILE T_DO
+%token T_TYPE T_DOT
 
 //Definição de tipos não-terminais
 %type <block> program code cmds funcmds
-%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop
+%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop composite multdecl
 %type <typeEnum> type
 %type <argList> arglist
 %type <node> newscope endscope
@@ -84,6 +85,7 @@ code	: global {
 
 global  : cmd
 		| fun
+		| composite
 		;
 
 cmds	: cmd { 
@@ -357,6 +359,22 @@ loop	: T_WHILE expr T_DO newscope cmds endscope T_END T_WHILE {
 			}
 			$$ = new AST::Loop($2, $5);
 		}
+		;
+
+composite	: T_DEF T_TYPE T_COLON T_ID multdecl T_END T_DEF {
+			$$ = new AST::Composite($4, $5);
+		}
+		;
+
+multdecl: type arr T_COLON T_ID T_ENDL {
+			// symtable->addSymbol($1);
+			$$ = new AST::Variable($4, NULL);
+		}
+		| multdecl type arr T_COLON T_ID T_ENDL {
+			// symtable->addSymbol($1);
+			$$ = new AST::Variable($5, $1);
+		}
+		;
 
 newscope: {
 			symtable = new ST::SymTable(symtable);
