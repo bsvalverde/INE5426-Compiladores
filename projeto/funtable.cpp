@@ -1,4 +1,5 @@
 #include "funtable.h"
+#include "stringfier.h"
 
 using namespace FT;
 
@@ -26,10 +27,27 @@ void FunTable::defFunction(std::string name, Function* newFunction){
 
 Function* FunTable::getFunction(std::string name){
 	if(!hasFunction(name)){
-		//TODO fix error message
-		yyerror("semantico: funcao %s nao declarada.", name.c_str());
+		yyerror("semantico: funcao %s sem declaracao.", name.c_str());
+		return new Function();
 	}
 	return this->table[name];
+}
+
+Function* FunTable::useFunction(std::string name, std::vector<Type> arguments){
+	Function* fun = this->getFunction(name);
+	std::vector<ST::Symbol*> parameters = fun->parameters;
+	int argsSize = arguments.size();
+	int paramsSize = parameters.size();
+	if(argsSize != paramsSize){
+		yyerror("semantico: funcao %s espera %d parametros mas recebeu %d.", name.c_str(), paramsSize, argsSize);
+	} else{
+		for(int i = 0; i < paramsSize; i++){
+			if(arguments[i] != parameters[(argsSize-1-i)]->type){
+				yyerror("semantico: parametro espera %s mas recebeu %s.", Stringfier::typeStringM(parameters[(argsSize-1-i)]->type).c_str(), Stringfier::typeStringM(arguments[i]).c_str());
+			}
+		}
+	}
+	return fun;
 }
 
 bool FunTable::hasFunction(std::string name){

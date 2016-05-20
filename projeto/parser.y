@@ -71,7 +71,7 @@ program	: code {
 			root = $1;
 			funtable->checkDefinitions();
 		}
-;
+		;
 
 code	: global {
 			$$ = new AST::Block(); 
@@ -170,7 +170,13 @@ attr 	: T_ID arrexpr T_ATTR expr {
 			AST::Variable* var = new AST::Variable($1, NULL);
 			ST::Symbol* s = symtable->getSymbol($1);
 			var->type = s->type;
-			if(s->arrSize == 0 && $2 != NULL){
+			if(s->type == Type::desconhecido){
+				if($2 == NULL){
+					yyerror("semantico: variavel %s sem declaracao.", $1);
+				} else{
+					yyerror("semantico: arranjo %s sem declaracao.", $1);
+				}
+			} else if(s->arrSize == 0 && $2 != NULL){
 				yyerror("semantico: variavel %s com uso como arranjo;", $1);
 				var->type = Type::desconhecido;
 			} else if (s->arrSize > 0 && $2 == NULL){
@@ -196,14 +202,23 @@ expr	: const
 					yyerror("semantico: arranjo %s com uso como variavel;", $1);
 					var->type = Type::desconhecido;
 				}
+			} else{
+				if($2 == NULL){
+					yyerror("semantico: variavel %s sem declaracao.", $1);
+				} else{
+					yyerror("semantico: arranjo %s sem declaracao.", $1);
+				}
 			}
 			var->arrExpr = $2;
 			$$ = var;
 		}
 		| T_ID T_APAR arglist T_FPAR {
 			AST::FunCall* fun = new AST::FunCall($1, $3);
-			//TODO trocar por use
-			fun->type = funtable->getFunction($1)->returnType;
+			std::vector<Type> args;
+			for(AST::Node* arg : $3->arguments){
+				args.push_back(arg->type);
+			}
+			fun->type = funtable->useFunction($1, args)->returnType;
 			$$ = fun;
 		}
 		| expr T_PLUS expr {

@@ -18,6 +18,7 @@ public:
 	void addFunction(std::string name, Function* newFunction);
 	void defFunction(std::string name, Function* newFunction);
 	Function* getFunction(std::string name);
+	Function* useFunction(std::string name, std::vector<Type> arguments);
 	//metodo para verificar funcao (numero certo de parametros)
 	void checkDefinitions();
 
@@ -29,6 +30,7 @@ private:
 class Function {
 public:
 	Function(Type returnType, std::vector<ST::Symbol*> parameters) : returnType(returnType), parameters(parameters), defined(false) {};
+	Function() : returnType(desconhecido), defined(true) {};
 	Type returnType;
 	std::vector<ST::Symbol*> parameters;
 	bool defined;
