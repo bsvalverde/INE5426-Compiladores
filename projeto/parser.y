@@ -48,7 +48,7 @@ extern void yyerror(const char* s, ...);
 
 //Definição de tipos não-terminais
 %type <block> program code cmds funcmds
-%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop complex multdecl
+%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop composite multdecl
 %type <typeEnum> type
 %type <argList> arglist
 %type <node> newscope endscope
@@ -85,7 +85,7 @@ code	: global {
 
 global  : cmd
 		| fun
-		| complex
+		| composite
 		;
 
 cmds	: cmd { 
@@ -346,8 +346,8 @@ loop	: T_WHILE expr T_DO newscope cmds endscope T_END T_WHILE {
 		}
 		;
 
-complex	: T_DEF T_TYPE T_COLON T_ID multdecl T_END T_DEF {
-			$$ = new AST::Complex($4, $5);
+composite	: T_DEF T_TYPE T_COLON T_ID multdecl T_END T_DEF {
+			$$ = new AST::Composite($4, $5);
 		}
 		;
 

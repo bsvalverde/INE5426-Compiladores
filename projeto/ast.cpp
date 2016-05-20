@@ -183,7 +183,7 @@ std::string Loop::printTree() {
 	return retorno;
 }
 
-std::string Complex::printTree() {
+std::string Composite::printTree() {
 	std::string retorno = "Definicao tipo: ";
 	retorno += this->name;
 	retorno += "\n+componentes:";
