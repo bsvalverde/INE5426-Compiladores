@@ -173,3 +173,12 @@ std::string Conditional::printTree() {
 	retorno += "Fim expressao condicional";
 	return retorno;
 }
+
+std::string Loop::printTree() {
+	std::string retorno = "+enquanto: ";
+	retorno += this->condition->printTree();
+	retorno += "\n+faca:\n";
+	retorno += this->loopBlock->printTree();
+	retorno += "Fim laco";
+	return retorno;
+}

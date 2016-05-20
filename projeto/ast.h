@@ -187,4 +187,12 @@ public:
 	std::string printTree();
 };
 
+class Loop : public Node {
+public:
+	Node* condition;
+	Node* loopBlock;
+	Loop(Node* condition, Node* loopBlock) : condition(condition), loopBlock(loopBlock) {}
+	std::string printTree();
+};
+
 }

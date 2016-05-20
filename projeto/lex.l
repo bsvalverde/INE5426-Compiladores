@@ -72,6 +72,10 @@ bool "TRUE"|"FALSE"
 "then"	{return T_THEN;}
 "else"	{return T_ELSE;}
 
+ /* Tokens de Laço */
+"while"	{return T_WHILE;}
+"do"	{return T_DO;}
+
  /* Misc */
 "end"	{return T_END;}
 {id}	{

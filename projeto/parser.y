@@ -43,10 +43,11 @@ extern void yyerror(const char* s, ...);
 %token T_COLON T_ENDL T_COMMA
 %token T_DEF T_DECL T_END T_FUN T_RET
 %token T_IF T_THEN T_ELSE
+%token T_WHILE T_DO
 
 //Definição de tipos não-terminais
 %type <block> program code cmds funcmds
-%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond
+%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop
 %type <typeEnum> type
 %type <argList> arglist
 %type <node> newscope endscope
@@ -94,6 +95,7 @@ cmds	: cmd {
 cmd 	: decl T_ENDL
 		| attr T_ENDL
 		| cond
+		| loop
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
@@ -330,6 +332,13 @@ cond	: T_IF expr T_THEN newscope cmds endscope T_END T_IF {
 			$$ = new AST::Conditional($2, $5, $9);
 		}
 		;
+
+loop	: T_WHILE expr T_DO newscope cmds endscope T_END T_WHILE {
+			if($2->type != Type::booleano){
+				yyerror("semantico: operacao teste espera booleano mas recebeu %s.", Stringfier::typeStringM($2->type).c_str());
+			}
+			$$ = new AST::Loop($2, $5);
+		}
 
 newscope: {
 			symtable = new ST::SymTable(symtable);
