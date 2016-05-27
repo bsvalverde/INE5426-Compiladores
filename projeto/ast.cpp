@@ -115,14 +115,14 @@ std::string Arguments::printTree(){
 }
 
 std::string Parameters::printTree(){
-	std::string retorno = "+parametros:\n";
+	std::string retorno = "";
 
 	AST::Variable* aux = (AST::Variable*) this->param;
 	while(aux != NULL) {
-		retorno += "Parametro " + Stringfier::typeStringM(aux->type) + ": " + aux->name + "\n";
+		retorno = "Parametro " + Stringfier::typeStringM(aux->type) + ": " + aux->name + "\n" + retorno;
 		aux = (AST::Variable*) aux->next;
 	}
-
+	retorno = "+parametros:\n" + retorno;
 	return retorno;
 }
 
