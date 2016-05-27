@@ -179,7 +179,9 @@ attr 	: T_ID arrexpr T_ATTR expr {
 			ST::Symbol* s = symtable->getSymbol($1);
 			var->type = s->type;
 			if(s->type == Type::desconhecido){
-				if($2 == NULL){
+				if(funtable->getFunction($1)->returnType != Type::desconhecido){
+					yyerror("semantico: funcao %s com uso como variavel.", $1);
+				} else if($2 == NULL){
 					yyerror("semantico: variavel %s sem declaracao.", $1);
 				} else{
 					yyerror("semantico: arranjo %s sem declaracao.", $1);
@@ -211,7 +213,9 @@ expr	: const
 					var->type = Type::desconhecido;
 				}
 			} else{
-				if($2 == NULL){
+				if(funtable->getFunction($1)->returnType != Type::desconhecido){
+					yyerror("semantico: funcao %s com uso como variavel.", $1);
+				} else if($2 == NULL){
 					yyerror("semantico: variavel %s sem declaracao.", $1);
 				} else{
 					yyerror("semantico: arranjo %s sem declaracao.", $1);
@@ -231,6 +235,19 @@ expr	: const
 					s = symtable->getSymbol(var->name);
 				}
 				args.push_back(s);
+			}
+			FT::Function* f = funtable->getFunction($1);
+			if(funtable->getFunction($1)->returnType == Type::desconhecido){
+				ST::Symbol* s = symtable->getSymbol($1);
+				if(s->type == Type::desconhecido){
+					yyerror("semantico: funcao %s sem declaracao.", $1);
+				} else{
+					if(s->arrSize == 0){
+						yyerror("semantico: variavel %s com uso como funcao.", $1);
+					} else{
+						yyerror("semantico: arranjo %s com uso como funcao.", $1);
+					}
+				}
 			}
 			fun->type = funtable->useFunction($1, args)->returnType;
 			$$ = fun;
@@ -288,6 +305,9 @@ arglist : expr {
 		}
 		| arglist T_COMMA expr {
 			if($3 != NULL) $1->arguments.push_back($3);
+		}
+		| {
+			$$ = new AST::Arguments();
 		}
 		;
 

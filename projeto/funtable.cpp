@@ -27,7 +27,6 @@ void FunTable::defFunction(std::string name, Function* newFunction){
 
 Function* FunTable::getFunction(std::string name){
 	if(!hasFunction(name)){
-		yyerror("semantico: funcao %s sem declaracao.", name.c_str());
 		return new Function();
 	}
 	return this->table[name];
