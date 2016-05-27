@@ -180,7 +180,11 @@ attr 	: T_ID arrexpr T_ATTR expr {
 			var->type = s->type;
 			if(s->type == Type::desconhecido){
 				if(funtable->getFunction($1)->returnType != Type::desconhecido){
-					yyerror("semantico: funcao %s com uso como variavel.", $1);
+					if($2 == NULL){
+						yyerror("semantico: funcao %s com uso como variavel.", $1);
+					} else{
+						yyerror("semantico: funcao %s com uso como arranjo.", $1);
+					}
 				} else if($2 == NULL){
 					yyerror("semantico: variavel %s sem declaracao.", $1);
 				} else{
@@ -214,7 +218,11 @@ expr	: const
 				}
 			} else{
 				if(funtable->getFunction($1)->returnType != Type::desconhecido){
-					yyerror("semantico: funcao %s com uso como variavel.", $1);
+					if($2 == NULL){
+						yyerror("semantico: funcao %s com uso como variavel.", $1);
+					} else{
+						yyerror("semantico: funcao %s com uso como arranjo.", $1);
+					}
 				} else if($2 == NULL){
 					yyerror("semantico: variavel %s sem declaracao.", $1);
 				} else{
