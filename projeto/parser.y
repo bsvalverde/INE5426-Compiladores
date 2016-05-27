@@ -222,9 +222,15 @@ expr	: const
 		}
 		| T_ID T_APAR arglist T_FPAR {
 			AST::FunCall* fun = new AST::FunCall($1, $3);
-			std::vector<Type> args;
+			std::vector<ST::Symbol*> args;
 			for(AST::Node* arg : $3->arguments){
-				args.push_back(arg->type);
+				ST::Symbol *s = new ST::Symbol();
+				s->setType(arg->type);
+				AST::Variable* var = dynamic_cast<AST::Variable*>(arg);
+				if(var != NULL){
+					s = symtable->getSymbol(var->name);
+				}
+				args.push_back(s);
 			}
 			fun->type = funtable->useFunction($1, args)->returnType;
 			$$ = fun;
@@ -285,27 +291,36 @@ arglist : expr {
 		}
 		;
 
-fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
+fun 	: T_DECL T_FUN type T_COLON T_ID newscope T_APAR params T_FPAR endscope T_ENDL {
 			std::vector<ST::Symbol*> symbols;
-			AST::Variable* aux = (AST::Variable*)$7;
+			AST::Variable* aux = (AST::Variable*)$8;
 			while(aux != NULL){
-				symbols.push_back(new ST::Symbol(aux->type));
+				ST::Symbol* s = new ST::Symbol(aux->type);
+				if(aux->arrExpr != NULL){
+					AST::Const* c = (AST::Const*)aux->arrExpr;
+					s->arrSize = atoi(c->value.c_str());	
+				}
+				symbols.push_back(s);
 				aux = (AST::Variable*) aux->next;
 			}
 			FT::Function* fun = new FT::Function($3, symbols);
 			funtable->addFunction($5, fun);
-			$$ = new AST::DeclFunc($5, new AST::Parameters($7));
+			$$ = new AST::DeclFunc($5, new AST::Parameters($8));
 			$$->type = $3;
 		}
 		| T_DEF T_FUN type T_COLON T_ID newscope T_APAR params T_FPAR funcmds endscope T_END T_DEF {
-			std::vector<ST::Symbol*> temp;
+			std::vector<ST::Symbol*> symbols;
 			AST::Variable* aux = (AST::Variable*)$8;
 			while(aux != NULL){
-				temp.push_back(new ST::Symbol(aux->type));
+				ST::Symbol* s = new ST::Symbol(aux->type);
+				if(aux->arrExpr != NULL){
+					AST::Const* c = (AST::Const*)aux->arrExpr;
+					s->arrSize = atoi(c->value.c_str());	
+				}
+				symbols.push_back(s);
 				aux = (AST::Variable*) aux->next;
 			}
-			std::vector<ST::Symbol*> symbols;
-			FT::Function* fun = new FT::Function($3, temp);
+			FT::Function* fun = new FT::Function($3, symbols);
 			funtable->defFunction($5, fun);
 			$$ = new AST::DefFunc($5, new AST::Parameters($8), $10);
 			$$->type = $3;
@@ -322,16 +337,26 @@ type 	: T_DINT { $$ = Type::inteiro; }
 		| T_DBOOL { $$ = Type::booleano; }
 		;
 
-params	: type T_COLON T_ID {
-			symtable->addSymbol($3, $1);
-			AST::Variable* var = new AST::Variable($3, NULL);
+params	: type arr T_COLON T_ID {
+			symtable->addSymbol($4, $1);
+			AST::Variable* var = new AST::Variable($4, NULL);
 			var->type = $1;
+			if($2 != NULL){
+				ST::Symbol* s = symtable->getSymbol($4);
+				s->arrSize = atoi(((AST::Const*)$2)->value.c_str());
+				var->arrExpr = $2;
+			}
 			$$ = var;
 		}
-		| params T_COMMA type T_COLON T_ID {
-			symtable->addSymbol($5, $3);
-			AST::Variable* var = new AST::Variable($5, $1);
+		| params T_COMMA type arr T_COLON T_ID {
+			symtable->addSymbol($6, $3);
+			AST::Variable* var = new AST::Variable($6, $1);
 			var->type = $3;
+			if($4 != NULL){
+				ST::Symbol* s = symtable->getSymbol($6);
+				s->arrSize = atoi(((AST::Const*)$4)->value.c_str());
+				var->arrExpr = $4;
+			}
 			$$ = var;
 		}
 		| {

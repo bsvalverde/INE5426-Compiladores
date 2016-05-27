@@ -18,7 +18,7 @@ public:
 	void addFunction(std::string name, Function* newFunction);
 	void defFunction(std::string name, Function* newFunction);
 	Function* getFunction(std::string name);
-	Function* useFunction(std::string name, std::vector<Type> arguments);
+	Function* useFunction(std::string name, std::vector<ST::Symbol*> arguments);
 	//metodo para verificar funcao (numero certo de parametros)
 	void checkDefinitions();
 

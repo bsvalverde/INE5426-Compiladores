@@ -33,7 +33,7 @@ Function* FunTable::getFunction(std::string name){
 	return this->table[name];
 }
 
-Function* FunTable::useFunction(std::string name, std::vector<Type> arguments){
+Function* FunTable::useFunction(std::string name, std::vector<ST::Symbol*> arguments){
 	Function* fun = this->getFunction(name);
 	std::vector<ST::Symbol*> parameters = fun->parameters;
 	int argsSize = arguments.size();
@@ -42,8 +42,12 @@ Function* FunTable::useFunction(std::string name, std::vector<Type> arguments){
 		yyerror("semantico: funcao %s espera %d parametros mas recebeu %d.", name.c_str(), paramsSize, argsSize);
 	} else{
 		for(int i = 0; i < paramsSize; i++){
-			if(arguments[i] != parameters[(argsSize-1-i)]->type){
-				yyerror("semantico: parametro espera %s mas recebeu %s.", Stringfier::typeStringM(parameters[(argsSize-1-i)]->type).c_str(), Stringfier::typeStringM(arguments[i]).c_str());
+			if(arguments[i]->type != parameters[(argsSize-1-i)]->type){
+				yyerror("semantico: parametro espera %s mas recebeu %s.", Stringfier::typeStringM(parameters[(argsSize-1-i)]->type).c_str(), Stringfier::typeStringM(arguments[i]->type).c_str());
+			}
+			// printf("%d e %d",arguments[i]->arrSize, parameters[(argsSize-1-i)]->arrSize);
+			if(arguments[i]->arrSize < parameters[(argsSize-1-i)]->arrSize){
+				yyerror("semantico: arranjo possui tamanho menor do que necessario.");
 			}
 		}
 	}

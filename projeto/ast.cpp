@@ -116,10 +116,14 @@ std::string Arguments::printTree(){
 
 std::string Parameters::printTree(){
 	std::string retorno = "";
-
 	AST::Variable* aux = (AST::Variable*) this->param;
 	while(aux != NULL) {
-		retorno = "Parametro " + Stringfier::typeStringM(aux->type) + ": " + aux->name + "\n" + retorno;
+		std::string params = "Parametro ";
+		if(aux->arrExpr != NULL){
+			params += "arranjo ";
+		}
+		params += Stringfier::typeStringM(aux->type) + ": " + aux->name + "\n" + retorno;
+		retorno = params;
 		aux = (AST::Variable*) aux->next;
 	}
 	retorno = "+parametros:\n" + retorno;
@@ -132,12 +136,6 @@ std::string DeclFunc::printTree() {
 
 	retorno += this->parameters->printTree();
 	retorno += "Fim declaracao";
-
-	// retorno += "+parametros:\n";
-	// for(ST::Symbol* param : fun->parameters){
-	// 	retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
-	// }
-	// retorno += "Fim declaracao";
 	return retorno;
 }
 
@@ -146,12 +144,6 @@ std::string DefFunc::printTree() {
 	std::string retorno = "Definicao de funcao " + Stringfier::typeStringF(fun->returnType) + ": " + this->funName + "\n";
 	
 	retorno += this->parameters->printTree();
-
-	// retorno += "+parametros:\n";
-	// for(ST::Symbol* param : fun->parameters){
-	// 	retorno += "Parametro " + Stringfier::typeStringM(param->type) + ": " /*+ nome*/ + "\n";//TODO nome
-	// }
-	
 
 	retorno += "+corpo:\n";
 	retorno += this->code->printTree();
