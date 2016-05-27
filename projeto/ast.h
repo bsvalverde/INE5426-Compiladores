@@ -158,23 +158,31 @@ public:
 	std::string printTree();
 };
 
+class Return : public Node {
+public:
+	Node* expr;
+	Return(Node* expr) : expr(expr) {}
+	std::string printTree();
+};
+
 class DefFunc : public Node {
 public:
 	std::string funName;
 	Node* parameters;
 	Node* code;
 	DefFunc(std::string funName, Node* parameters, Node* code) : funName(funName), parameters(parameters), code(code) {
-		//TODO
-		//analisar semanticamente o codigo
-		//apenas verificar se tem return
+		Block* c = (Block*) code;
+		bool ret = false;
+		for(Node* line : c->nodes){
+			if(dynamic_cast<Return*>(line)){
+				ret = true;
+				break;
+			}
+		}
+		if(!ret){
+			yyerror("semantico: funcao %s sem retorno.", funName.c_str());
+		}
 	}
-	std::string printTree();
-};
-
-class Return : public Node {
-public:
-	Node* expr;
-	Return(Node* expr) : expr(expr) {}
 	std::string printTree();
 };
 

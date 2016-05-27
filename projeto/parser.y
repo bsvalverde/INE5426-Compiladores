@@ -115,6 +115,12 @@ funcmds : funcmd {
 
 funcmd  : cmd
 		| T_RET expr T_ENDL {
+			AST::Variable* var = dynamic_cast<AST::Variable*> ($2);
+			if(var != NULL){
+				if(var->arrExpr == NULL && symtable->getSymbol(var->name)->arrSize > 0){
+					yyerror("semantico: funcao retornando arranjo.");
+				}
+			}
 			$$ = new AST::Return($2);
 		}
 
@@ -299,12 +305,6 @@ fun 	: T_DECL T_FUN type T_COLON T_ID T_APAR params T_FPAR T_ENDL {
 				aux = (AST::Variable*) aux->next;
 			}
 			std::vector<ST::Symbol*> symbols;
-			//TODO arrumar a ordem dos parametros
-			//params está de trás para frente e arglist de frente pra tras
-			//ou mudar o params para ter nodelist ao inves de variables
-			/*for(int i = temp.size()-1; i >= 0; i++){
-				symbols.push_back(temp[i]);
-			}*/
 			FT::Function* fun = new FT::Function($3, temp);
 			funtable->defFunction($5, fun);
 			$$ = new AST::DefFunc($5, new AST::Parameters($8), $10);
