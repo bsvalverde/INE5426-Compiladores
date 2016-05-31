@@ -179,11 +179,12 @@ std::string Composite::printTree() {
 	std::string retorno = "Definicao tipo: ";
 	retorno += this->name;
 	retorno += "\n+componentes:";
+	std::string comps = "";
 	AST::Variable* aux = (AST::Variable*) this->attributes;
 	while(aux != NULL) {
-		retorno += "\nComponente " + aux->printTree();
+		comps = "\nComponente " + Stringfier::typeStringM(aux->type) + ": " + aux->name + comps;
 		aux = (AST::Variable*) aux->next;
 	}
-	retorno += "\nFim definicao";
+	retorno += comps + "\nFim definicao";
 	return retorno;
 }

@@ -48,7 +48,7 @@ extern void yyerror(const char* s, ...);
 
 //Definição de tipos não-terminais
 %type <block> program code cmds funcmds
-%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop composite multdecl
+%type <node> global cmd funcmd decl listvar attr expr const arr arrexpr fun params cond loop composite multdecl dot
 %type <typeEnum> type
 %type <argList> arglist
 %type <node> newscope endscope
@@ -174,7 +174,7 @@ listvar	: T_ID {
 		}
 		;
 
-attr 	: T_ID arrexpr T_ATTR expr {
+attr 	: T_ID arrexpr dot T_ATTR expr {
 			AST::Variable* var = new AST::Variable($1, NULL);
 			ST::Symbol* s = symtable->getSymbol($1);
 			var->type = s->type;
@@ -199,12 +199,19 @@ attr 	: T_ID arrexpr T_ATTR expr {
 			}
 			var->arrExpr = $2;
 			symtable->setSymbol($1);
-			$$ = new AST::AssignVar(var, $4, $2);
+			$$ = new AST::AssignVar(var, $5, $2);
 		}
 		;
 
+dot 	: T_DOT T_ID {
+			$$ = new AST::Variable($2, NULL);
+		}
+		| {
+			$$ = NULL;
+		}
+
 expr	: const 
-		| T_ID arrexpr {
+		| T_ID arrexpr dot {
 			AST::Variable* var = new AST::Variable($1, NULL);
 			ST::Symbol* s = symtable->useSymbol($1);
 			var->type = s->type;
@@ -422,10 +429,12 @@ composite	: T_DEF T_TYPE T_COLON T_ID multdecl T_END T_DEF {
 multdecl: type arr T_COLON T_ID T_ENDL {
 			// symtable->addSymbol($1);
 			$$ = new AST::Variable($4, NULL);
+			$$->type = $1;
 		}
 		| multdecl type arr T_COLON T_ID T_ENDL {
 			// symtable->addSymbol($1);
 			$$ = new AST::Variable($5, $1);
+			$$->type = $2;
 		}
 		;
 
