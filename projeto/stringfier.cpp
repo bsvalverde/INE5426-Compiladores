@@ -14,6 +14,7 @@ std::string Stringfier::typeStringM(Type type) {
 		case inteiro: return "inteiro";
 		case real: return "real";
 		case booleano: return "booleano";
+		case composto: return "composto";
 	}
 }
 
@@ -23,6 +24,7 @@ std::string Stringfier::typeStringF(Type type) {
 		case inteiro: return "inteira";
 		case real: return "real";
 		case booleano: return "booleana";
+		case composto: return "composta";
 	}
 }
 

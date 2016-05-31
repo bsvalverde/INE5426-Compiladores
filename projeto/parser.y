@@ -370,6 +370,7 @@ const   : T_INT { $$ = new AST::Const($1, Type::inteiro); }
 type 	: T_DINT { $$ = Type::inteiro; }
 		| T_DREAL { $$ = Type::real; }
 		| T_DBOOL { $$ = Type::booleano; }
+		| T_ID { $$ = Type::composto; }
 		;
 
 params	: type arr T_COLON T_ID {
