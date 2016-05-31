@@ -4,7 +4,8 @@ enum Type {
 	desconhecido,
 	inteiro,
 	real,
-	booleano
+	booleano,
+	composto
 };
 
 enum BinOperation {
