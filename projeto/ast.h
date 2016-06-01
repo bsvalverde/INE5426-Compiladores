@@ -1,4 +1,5 @@
 /* Abstract Syntax Tree */
+//Classe que forma os nodos da árvore sintática de funcionamento do código gerado.
 #pragma once
 
 #include <vector>
@@ -12,21 +13,21 @@ class Node;
 
 typedef std::vector<Node*> NodeList;
 
-class Node {
+class Node { //nodo generalizado
 public:
     virtual ~Node() {}
     virtual std::string printTree() {return "";}
     Type type;
 };
 
-class Block : public Node {
+class Block : public Node { //lista de nodos
 public:
 	NodeList nodes;
 	Block() {}
 	std::string printTree();
 };
 
-class UnOp : public Node {
+class UnOp : public Node { //nodo utilizado em operações unárias, como menos unário ou não booleno
 public:
 	UnOperation op;
 	Node* next;
@@ -36,7 +37,7 @@ public:
 	std::string printTree();
 };
 
-class BinOp : public Node {
+class BinOp : public Node { //nodo utilizado em operações binárias, tanto matemáticas (+,-,...) quanto lógicas (>,=,...)
 public:
 	BinOperation op;
 	Node* left;
@@ -78,7 +79,7 @@ public:
 	std::string printTree();
 };
 
-class Variable : public Node {
+class Variable : public Node { //nodo utilizado no uso de variáveis
 public:
 	std::string name;
 	Node* next;
@@ -89,7 +90,7 @@ public:
 	std::string printTree();
 };
 
-class Const : public Node {
+class Const : public Node { //nodo utilizado no uso de valores constantes (1, .1 ou até TRUE)
 public:
 	std::string value;
 	Const(std::string value, Type type) : value(value) {
@@ -98,7 +99,7 @@ public:
 	std::string printTree();
 };
 
-class AssignVar : public Node {
+class AssignVar : public Node { //nodo utilizado na atribuição de variáveis. separado das operações binárias para facilitar a operação printTree()
 public:
 	Node* left;
 	Node* right;
@@ -112,14 +113,14 @@ public:
 	std::string printTree();
 };
 
-class DeclVar : public Node {
+class DeclVar : public Node { //nodo utilizado na declaração de variáveis. separado das operações unárias para facilitar o printTree()
 public:
 	Node* next;
 	DeclVar(Node* next) : next(next) {}
 	std::string printTree();
 };
 
-class Par : public Node {
+class Par : public Node { //nodo utilizado quando há parênteses nas fórmulas
 public:
 	Node* content;
 	Par(Node* content) : content(content) {
@@ -128,7 +129,7 @@ public:
 	std::string printTree();
 };
 
-class FunCall : public Node {
+class FunCall : public Node { //nodo utilizado na chamada de funções
 public:
 	std::string name;
 	Node* args;
@@ -136,21 +137,21 @@ public:
 	std::string printTree();
 };
 
-class Arguments : public Node {
+class Arguments : public Node { //nodo utilizado na utilização de argumentos na chamada de funções
 public:
 	NodeList arguments;
 	Arguments() {}
 	std::string printTree();
 };
 
-class Parameters : public Node {
+class Parameters : public Node { //nodo utilizado na criação de parâmetros na declaração/definição de funções
 public:
 	Node* param;
 	Parameters(Node* param) : param(param) {}
 	std::string printTree();
 };
 
-class DeclFunc : public Node {
+class DeclFunc : public Node { //nodo utilizado na declaração de funções
 public:
 	std::string funName;
 	Node* parameters;
@@ -158,14 +159,14 @@ public:
 	std::string printTree();
 };
 
-class Return : public Node {
+class Return : public Node { //nodo utilizado na chamada retorno de funções
 public:
 	Node* expr;
 	Return(Node* expr) : expr(expr) {}
 	std::string printTree();
 };
 
-class DefFunc : public Node {
+class DefFunc : public Node { //nodo utilizado na definição de funções
 public:
 	std::string funName;
 	Node* parameters;
@@ -186,7 +187,7 @@ public:
 	std::string printTree();
 };
 
-class Conditional : public Node {
+class Conditional : public Node { //nodo utilizado na chamada de condicionais
 public:
 	Node* condition;
 	Node* then;
@@ -195,7 +196,7 @@ public:
 	std::string printTree();
 };
 
-class Loop : public Node {
+class Loop : public Node { //nodo utilizado na chamada de loops
 public:
 	Node* condition;
 	Node* loopBlock;
@@ -203,7 +204,7 @@ public:
 	std::string printTree();
 };
 
-class Composite : public Node {
+class Composite : public Node { //nodo utilizado na definição de tipos compostos
 public:
 	std::string name;
 	Node* attributes;

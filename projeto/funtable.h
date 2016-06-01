@@ -1,4 +1,8 @@
 /* Function Table */
+//declara as classes tabela de função e função
+//a tabela de funções tem um mapa que armazena as funções de acordo com seu nome
+//as funções sabem seu tipo de retorno e os atributos com os quais devem ser chamadas
+//separada da symtable pois não é suscetível a escopo
 #pragma once
 
 #include <map>

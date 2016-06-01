@@ -1,3 +1,4 @@
+//classe utilizada para gerar strings a partir dos enums
 #pragma once
 
 #include "enums.h"

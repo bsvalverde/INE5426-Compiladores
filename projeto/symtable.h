@@ -1,4 +1,7 @@
 /* Symbol Table */
+//classe que declara a tabela de símbolos, assim como os símbolos inseridos nela
+//a tabela de símbolos contém um mapa com um ponteiro para os símbolos a partir de seus nomes
+//a tabela de símbolos tem uma 'tabela-pai', que é o escopo superior
 #pragma once
 
 #include <map>

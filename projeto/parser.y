@@ -68,12 +68,14 @@ extern void yyerror(const char* s, ...);
 
 %%
 
+//programa é formado por códigos
 program	: code {
 			root = $1;
 			funtable->checkDefinitions();
 		}
 		;
 
+//código pode ter uma ou mais instruções globais
 code	: global {
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
@@ -83,11 +85,13 @@ code	: global {
 		}
 		;
 
+//define quais as instruções globais
 global  : cmd
 		| fun
 		| composite
 		;
 
+//similar a code, mas utilizado em estruturas que não podem chamar todas as instruções que o escopo global pode
 cmds	: cmd { 
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
@@ -97,6 +101,7 @@ cmds	: cmd {
 		}
 		;
 
+//definição do que é um comando
 cmd 	: decl T_ENDL
 		| attr T_ENDL
 		| cond
@@ -104,6 +109,7 @@ cmd 	: decl T_ENDL
         | error T_ENDL {yyerrok; $$=NULL;}
 		;
 
+//assim como cmds, é similar a code, mas é a estrutura de uma função
 funcmds : funcmd {
 			$$ = new AST::Block(); 
 			$$->nodes.push_back($1);
@@ -113,6 +119,7 @@ funcmds : funcmd {
 		}
 		;
 
+//define quais os comandos da função
 funcmd  : cmd
 		| T_RET expr T_ENDL {
 			AST::Variable* var = dynamic_cast<AST::Variable*> ($2);
@@ -124,6 +131,7 @@ funcmd  : cmd
 			$$ = new AST::Return($2);
 		}
 
+//estrutura da declaração de variáveis
 decl	: type arr T_COLON listvar { 
 			AST::Variable* var = (AST::Variable*) $4;
 			while(var != NULL) {
@@ -146,6 +154,7 @@ decl	: type arr T_COLON listvar {
 		}
 		;
 
+//estrutura do array no momento da declaração de variáveis
 arr 	: T_AARR T_INT T_FARR {
 			$$ = new AST::Const($2, Type::inteiro);
 		}
@@ -154,6 +163,7 @@ arr 	: T_AARR T_INT T_FARR {
 		}
 		;
 
+//estrutura do array no momento da utilização das variáveis
 arrexpr : T_AARR expr T_FARR {
 			if($2->type != Type::inteiro){
 				yyerror("semantico: indice de tipo %s.", Stringfier::typeStringM($2->type).c_str());
@@ -164,6 +174,7 @@ arrexpr : T_AARR expr T_FARR {
 			$$ = NULL;
 		}
 
+//não-terminal que gera uma 'lista' de nodos variável que serão utilizados na declaração
 listvar	: T_ID {
 			symtable->addSymbol($1);
 			$$ = new AST::Variable($1, NULL);
@@ -174,6 +185,7 @@ listvar	: T_ID {
 		}
 		;
 
+//estrutura da atribuição de variáveis
 attr 	: T_ID arrexpr dot T_ATTR expr {
 			AST::Variable* var = new AST::Variable($1, NULL);
 			ST::Symbol* s = symtable->getSymbol($1);
@@ -203,6 +215,7 @@ attr 	: T_ID arrexpr dot T_ATTR expr {
 		}
 		;
 
+//não-terminal que permite a utilização de componentes de tipos compostos
 dot 	: T_DOT T_ID {
 			$$ = new AST::Variable($2, NULL);
 		}
@@ -210,6 +223,7 @@ dot 	: T_DOT T_ID {
 			$$ = NULL;
 		}
 
+//define o que é uma expressão, utilizada em arrays, atribuições e argumentos
 expr	: const 
 		| T_ID arrexpr dot {
 			AST::Variable* var = new AST::Variable($1, NULL);
@@ -314,6 +328,7 @@ expr	: const
 		}
 		;
 
+//não-terminal que gera uma 'lista' de argumentos para ser utilizada na chamada de funções
 arglist : expr {
 			$$ = new AST::Arguments();
 			$$->arguments.push_back($1);
@@ -326,6 +341,7 @@ arglist : expr {
 		}
 		;
 
+//estrutura da definição/declaração de função
 fun 	: T_DECL T_FUN type T_COLON T_ID newscope T_APAR params T_FPAR endscope T_ENDL {
 			std::vector<ST::Symbol*> symbols;
 			AST::Variable* aux = (AST::Variable*)$8;
@@ -362,17 +378,20 @@ fun 	: T_DECL T_FUN type T_COLON T_ID newscope T_APAR params T_FPAR endscope T_E
 		}
 		;
 
+//não-terminal para gerar valores constantes
 const   : T_INT { $$ = new AST::Const($1, Type::inteiro); }
 		| T_REAL { $$ = new AST::Const($1, Type::real); }
 		| T_BOOL { $$ = new AST::Const($1, Type::booleano); }
 		;
 
+//não-terminal que retorna tipos
 type 	: T_DINT { $$ = Type::inteiro; }
 		| T_DREAL { $$ = Type::real; }
 		| T_DBOOL { $$ = Type::booleano; }
 		| T_ID { $$ = Type::composto; }
 		;
 
+//não-terminal utilizado para gerar uma 'lista' de parâmetros na definição/declaração de funções
 params	: type arr T_COLON T_ID {
 			symtable->addSymbol($4, $1);
 			AST::Variable* var = new AST::Variable($4, NULL);
@@ -400,6 +419,7 @@ params	: type arr T_COLON T_ID {
 		}
 		;
 
+//estrutura de condicionais
 cond	: T_IF expr T_THEN newscope cmds endscope T_END T_IF {
 			if($2->type != Type::booleano){
 				yyerror("semantico: operacao teste espera booleano mas recebeu %s.", Stringfier::typeStringM($2->type).c_str());
@@ -414,6 +434,7 @@ cond	: T_IF expr T_THEN newscope cmds endscope T_END T_IF {
 		}
 		;
 
+//estrutura de laços
 loop	: T_WHILE expr T_DO newscope cmds endscope T_END T_WHILE {
 			if($2->type != Type::booleano){
 				yyerror("semantico: operacao teste espera booleano mas recebeu %s.", Stringfier::typeStringM($2->type).c_str());
@@ -422,11 +443,13 @@ loop	: T_WHILE expr T_DO newscope cmds endscope T_END T_WHILE {
 		}
 		;
 
+//estrutura da definição de tipos compostos
 composite	: T_DEF T_TYPE T_COLON T_ID multdecl T_END T_DEF {
 			$$ = new AST::Composite($4, $5);
 		}
 		;
 
+//utilizado na declaração de atributos de tipos compostos
 multdecl: type arr T_COLON T_ID T_ENDL {
 			// symtable->addSymbol($1);
 			$$ = new AST::Variable($4, NULL);
@@ -439,12 +462,14 @@ multdecl: type arr T_COLON T_ID T_ENDL {
 		}
 		;
 
+//não-terminal utilizado para explicitar o local de criação de novo escopo
 newscope: {
 			symtable = new ST::SymTable(symtable);
 			$$ = NULL;
 		}
 		;
 
+//não-terminal utilizado para explicitar local de retorno ao escopo antigo
 endscope: {
 			ST::SymTable* oldSymtable = symtable;
 			symtable = symtable->superScope;

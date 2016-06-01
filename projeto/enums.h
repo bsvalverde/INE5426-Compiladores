@@ -1,3 +1,4 @@
+//classe genérica para declaração dos enums utilizados
 #pragma once
 
 enum Type {
