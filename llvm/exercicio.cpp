@@ -25,7 +25,7 @@ int main() {
 
 	llvm::BasicBlock* mainBB = llvm::BasicBlock::Create(context, "mainBB", mainFunction);
 
-	builder.setInsertPoint(mainBB);
+	builder.SetInsertPoint(mainBB);
 
 	/* function Teste */
 	llvm::Type* boolType = llvm::Type::getInt1Ty(context);
@@ -38,10 +38,10 @@ int main() {
 	params++;
 	params->setName("y");
 	params++;
-	params->setName("y");
+	params->setName("z");
 
 	llvm::BasicBlock* testeBB = llvm::BasicBlock::Create(context, "testeBB", testeFunction);
-	builder.setInsertPoint(testeBB);
+	builder.SetInsertPoint(testeBB);
 
 	llvm::Function::arg_iterator declParams = testeFunction->arg_begin();
 	
@@ -49,15 +49,15 @@ int main() {
 	auto y = ++declParams;
 	auto z = ++declParams;
 
-	auto xy = builder.createAnd(x, y, "andxy");
-	auto xz = builder.createAnd(x, z, "andxz");
-	auto nz = builder.createNot(z, "nz");
-	auto ny = builder.createNot(y, "ny");
-	auto nzny = builder.createAnd(nz, ny, "nzny");
-	auto res = builder.createOr(xy, xz, "res");
-	res = builder.createOr(res, nzny, "res");
+	auto xy = builder.CreateAnd(x, y, "andxy");
+	auto xz = builder.CreateAnd(x, z, "andxz");
+	auto nz = builder.CreateNot(z, "nz");
+	auto ny = builder.CreateNot(y, "ny");
+	auto nzny = builder.CreateAnd(nz, ny, "nzny");
+	auto res = builder.CreateOr(xy, xz, "res");
+	res = builder.CreateOr(res, nzny, "res");
 
-	builder.createRet(res);
+	builder.CreateRet(res);
 
 	llvm::verifyFunction(*testeFunction);
 
@@ -74,37 +74,37 @@ int main() {
 	params->setName("b");
 
 	llvm::BasicBlock* exemploBB = llvm::BasicBlock::Create(context, "exemploBB", exemploFunction);
-	builder.setInsertPoint(exemploBB);
+	builder.SetInsertPoint(exemploBB);
 
 	auto a = exemploFunction->arg_begin();
 	auto b = ++(exemploFunction->arg_begin());
 
-	auto multab = builder.createMul(a, b, "multab");
-	auto const20 = llvm::ConstantDouble::get(context, llvm::APDouble(64, 2.0));
-	auto modab = builder.createFRem(a, b, "modab");//???
-	auto ret = builder.createMul(const20, modab, "ret");
-	ret = builder.createSub(multab, ret, "ret");
+	auto multab = builder.CreateFMul(a, b, "multab");
+	auto const20 = llvm::ConstantFP::get(context, llvm::APFloat(2.0));
+	auto modab = builder.CreateFRem(a, b, "modab");//???
+	auto ret = builder.CreateFMul(const20, modab, "ret");
+	ret = builder.CreateFSub(multab, ret, "ret");
 
-	builder.createRet(ret);
+	builder.CreateRet(ret);
 
 	llvm::verifyFunction(*exemploFunction);
 
 	/* Chamando as funções */
-	builder.setInsertPoint(mainBB);
+	builder.SetInsertPoint(mainBB);
 
 	std::vector<llvm::Value*> args;
 	args.push_back(llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
 	args.push_back(llvm::ConstantInt::get(context, llvm::APInt(1, 0)));
 	args.push_back(llvm::ConstantInt::get(context, llvm::APInt(1, 1)));
-	auto testeRet = builer.CreateCall(testeFunction, args, "callteste");
+	auto testeRet = builder.CreateCall(testeFunction, args, "callteste");
 
 	std::vector<llvm::Value*> args2;
-	args2.push_back(llvm::ConstantDouble::get(context, llvm::APDouble(64, 10.0)));
-	args2.push_back(llvm::ConstantDouble::get(context, llvm::APDouble(64, 5.0)));
+	args2.push_back(llvm::ConstantFP::get(context, llvm::APFloat(10.0)));
+	args2.push_back(llvm::ConstantFP::get(context, llvm::APFloat(5.0)));
 	auto exemploRet = builder.CreateCall(exemploFunction, args2, "callexemplo");
 
 
-	builder.createRet(testeRet);
+	builder.CreateRet(testeRet);
 
 	module->dump();
 
